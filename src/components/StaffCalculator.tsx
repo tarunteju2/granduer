@@ -6,29 +6,20 @@ import {
   UtensilsCrossed,
   ChefHat,
   ShieldCheck,
-  Share2,
-  Download,
-  Copy,
   Check,
   Calendar,
   Clock,
   MapPin,
-  DollarSign,
-  TrendingDown,
   ChevronDown,
   ChevronUp,
-  ArrowRight,
   Sliders,
 } from "lucide-react";
+import AnimatedSelect from "@/components/AnimatedSelect";
 import {
   type ServiceType,
-  calculateQuote,
   calculateRecommendedStaff,
-  generateQuoteId,
-  formatCurrency,
   REGION_PRICING,
   type Region,
-  type QuoteSummary,
   SERVICE_LABELS,
   EVENT_COMBINATIONS,
   calculateSurgeMultiplier,
@@ -68,11 +59,7 @@ export default function StaffCalculator() {
     return tomorrow.toISOString().split("T")[0];
   });
 
-  // UI state
-  const [showShareModal, setShowShareModal] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [savedQuotes, setSavedQuotes] = useState<Array<{ id: string; summary: QuoteSummary; timestamp: Date }>>([]);
 
   // Sync slider with number input
   const handleSliderChange = useCallback((value: number) => {
@@ -101,108 +88,7 @@ export default function StaffCalculator() {
     }));
   }, [guestCount, eventType, needsSecurity, needsKitchen]);
 
-  // Calculate real-time pricing
-  const quote = useMemo<QuoteSummary | null>(() => {
-    if (guestCount <= 0) return null;
-
-    const staffRequirements = calculateRecommendedStaff(eventType, guestCount, needsSecurity);
-    const filtered = needsKitchen
-      ? staffRequirements
-      : staffRequirements.filter(s => s.service !== "kitchen");
-
-    return calculateQuote({
-      eventType,
-      eventDate: new Date(eventDate),
-      guestCount,
-      region,
-      staffRequirements: filtered,
-      duration,
-    });
-  }, [guestCount, eventType, eventDate, region, needsSecurity, needsKitchen, duration]);
-
   const totalStaff = results.reduce((acc, r) => acc + r.count, 0);
-
-  // Save quote
-  const saveQuote = useCallback(() => {
-    if (!quote) return;
-
-    const id = generateQuoteId();
-    setSavedQuotes(prev => [{ id, summary: quote, timestamp: new Date() }, ...prev]);
-    return id;
-  }, [quote]);
-
-  // Copy share link
-  const copyShareLink = useCallback(() => {
-    if (!quote) return;
-
-    const shareData = {
-      eventType,
-      guestCount,
-      region,
-      duration,
-      total: quote.total,
-      staff: results.map(r => ({ role: r.role, count: r.count })),
-    };
-
-    const encoded = btoa(JSON.stringify(shareData));
-    const url = `${window.location.origin}#quote=${encoded}`;
-
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }, [quote, eventType, guestCount, region, duration, results]);
-
-  // Download quote as text
-  const downloadQuote = useCallback(() => {
-    if (!quote) return;
-
-    const content = `
-GRANDEUR HOSPITALITY STAFFING
-Staffing Quote
-Generated: ${new Date().toLocaleDateString()}
-
-Quote ID: ${generateQuoteId()}
-${"=".repeat(50)}
-
-EVENT DETAILS
-Event Type: ${eventType}
-Guest Count: ${guestCount}
-Date: ${eventDate}
-Duration: ${duration} hours
-Region: ${REGION_PRICING[region].description}
-
-STAFF REQUIREMENTS
-${results.map(r => `${r.role}: ${r.count}`).join("\n")}
-Total Staff: ${totalStaff}
-
-PRICING BREAKDOWN
-${quote.lineItems.map(item =>
-  `${item.serviceLabel} (${item.quantity} x ${item.hours}h): ${formatCurrency(item.total)}`
-).join("\n")}
-
-Subtotal: ${formatCurrency(quote.subtotal)}
-${quote.surgeFees > 0 ? `Surge Fees: ${formatCurrency(quote.surgeFees)} (${quote.activeSurgeConditions.join(", ")})` : ""}
-${quote.volumeDiscount > 0 ? `Volume Discount: -${formatCurrency(quote.volumeDiscount)}` : ""}
-
-TOTAL ESTIMATED COST: ${formatCurrency(quote.total)}
-${"=".repeat(50)}
-
-Note: This is an estimate. Final pricing may vary based on specific requirements.
-Contact us to confirm availability and finalize your quote.
-
-GRANDEUR HOSPITALITY STAFFING
-Since 1985
-    `.trim();
-
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `granduer-quote-${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [quote, eventType, guestCount, eventDate, duration, region, results, totalStaff]);
 
   // Calculate surge info
   const surgeInfo = useMemo(() => {
@@ -244,7 +130,7 @@ Since 1985
           transition={{ delay: 0.2, duration: 0.6 }}
           className="max-w-md text-[14px] text-white/30 leading-[1.9] font-light mb-16"
         >
-          Configure your event details for instant staffing recommendations and real-time pricing estimates.
+          Configure your event details for a clear staffing recommendation tailored to your event.
         </motion.p>
 
         <div className="grid gap-16 lg:grid-cols-12">
@@ -297,17 +183,12 @@ Since 1985
                 <Calendar size={12} className="text-gold-400/40" strokeWidth={1.5} />
                 Event Type
               </span>
-              <select
+              <AnimatedSelect
                 value={eventType}
-                onChange={(e) => setEventType(e.target.value)}
-                className="w-full border-b border-white/8 bg-transparent px-0 py-4 text-[14px] text-white focus:border-white/30 focus:outline-none transition-colors font-light appearance-none cursor-pointer"
-              >
-                {EVENT_PRESETS.map((t) => (
-                  <option key={t} className="bg-black">
-                    {t}
-                  </option>
-                ))}
-              </select>
+                onChange={setEventType}
+                options={EVENT_PRESETS}
+                ariaLabel="Event type"
+              />
             </label>
 
             {/* Event Date */}
@@ -332,7 +213,7 @@ Since 1985
                 className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-sm"
               >
                 <p className="text-[11px] text-amber-400/80 font-light">
-                  {surgeInfo.conditions.join(", ")} — {Math.round((surgeInfo.multiplier - 1) * 100)}% surge pricing applies
+                  {surgeInfo.conditions.join(", ")} — additional staffing planning may be needed
                 </p>
               </motion.div>
             )}
@@ -359,17 +240,15 @@ Since 1985
                 <MapPin size={12} className="text-gold-400/40" strokeWidth={1.5} />
                 Region
               </span>
-              <select
+              <AnimatedSelect
                 value={region}
-                onChange={(e) => setRegion(e.target.value as Region)}
-                className="w-full border-b border-white/8 bg-transparent px-0 py-4 text-[14px] text-white focus:border-white/30 focus:outline-none transition-colors font-light appearance-none cursor-pointer"
-              >
-                {Object.entries(REGION_PRICING).map(([key, val]) => (
-                  <option key={key} value={key} className="bg-black">
-                    {val.description}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setRegion(value as Region)}
+                options={Object.entries(REGION_PRICING).map(([value, region]) => ({
+                  value,
+                  label: region.description,
+                }))}
+                ariaLabel="Region"
+              />
             </label>
 
             {/* Advanced Options Toggle */}
@@ -486,112 +365,6 @@ Since 1985
                     );
                   })}
                 </div>
-
-                {/* Pricing Summary */}
-                {quote && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.4 }}
-                    className="mt-8 p-6 bg-white/[0.02] border border-white/8 rounded-sm"
-                  >
-                    <div className="flex items-center gap-3 mb-6">
-                      <DollarSign size={16} className="text-gold-400/50" strokeWidth={1.5} />
-                      <span className="text-[11px] uppercase tracking-[0.3em] text-white/35">
-                        Estimated Total
-                      </span>
-                    </div>
-
-                    <div className="flex items-baseline justify-between mb-6">
-                      <span className="font-serif text-5xl font-light text-gold-400">
-                        {formatCurrency(quote.total)}
-                      </span>
-                      <span className="text-[11px] text-white/30">
-                        for {duration} hours
-                      </span>
-                    </div>
-
-                    {/* Pricing breakdown */}
-                    <div className="space-y-2 text-[11px]">
-                      {quote.lineItems.map((item) => (
-                        <div key={item.service} className="flex justify-between">
-                          <span className="text-white/40">
-                            {item.serviceLabel} ({item.quantity})
-                          </span>
-                          <span className="text-white/60">
-                            {formatCurrency(item.total)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Volume discount badge */}
-                    {quote.volumeDiscount > 0 && (
-                      <div className="mt-4 flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-sm">
-                        <TrendingDown size={14} className="text-green-400/70" strokeWidth={1.5} />
-                        <span className="text-[11px] text-green-400/80">
-                          {quote.volumeDiscountTier} Applied
-                        </span>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="mt-8 border-t border-white/6 pt-8 flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-4">
-                    <a
-                      href="#request-staff"
-                      className="inline-flex items-center gap-2 border border-gold-400/30 px-6 py-3 text-[11px] font-medium uppercase tracking-[0.3em] text-gold-400/70 hover:bg-gold-400 hover:text-black transition-all duration-500"
-                    >
-                      Book Now
-                      <ArrowRight size={12} strokeWidth={1.5} />
-                    </a>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        saveQuote();
-                        setShowShareModal(true);
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/40 hover:text-white/70 transition-colors"
-                    >
-                      <Download size={12} strokeWidth={1.5} />
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={downloadQuote}
-                      className="flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/40 hover:text-white/70 transition-colors"
-                    >
-                      <Download size={12} strokeWidth={1.5} />
-                      PDF
-                    </button>
-                    <button
-                      type="button"
-                      onClick={copyShareLink}
-                      className="flex items-center gap-2 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/40 hover:text-white/70 transition-colors"
-                    >
-                      {copied ? (
-                        <>
-                          <Check size={12} strokeWidth={1.5} className="text-green-400" />
-                          Copied
-                        </>
-                      ) : (
-                        <>
-                          <Share2 size={12} strokeWidth={1.5} />
-                          Share
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <p className="mt-6 text-[11px] text-white/20 font-light">
-                  {guestCount} guests &middot; {eventType} &middot; {REGION_PRICING[region].description}
-                </p>
               </>
             ) : (
               <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -607,66 +380,7 @@ Since 1985
             )}
           </motion.div>
         </div>
-
-        {/* Saved Quotes Panel */}
-        {savedQuotes.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-16 p-6 bg-white/[0.02] border border-white/8 rounded-sm"
-          >
-            <h3 className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4">
-              Saved Quotes
-            </h3>
-            <div className="space-y-3">
-              {savedQuotes.slice(0, 3).map((quote) => (
-                <div
-                  key={quote.id}
-                  className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/6 rounded-sm"
-                >
-                  <div>
-                    <p className="text-[11px] text-white/60 font-mono">{quote.id}</p>
-                    <p className="text-[10px] text-white/30 mt-1">
-                      {quote.summary.guestCount} guests &middot; {quote.summary.eventType}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[14px] text-gold-400/70 font-serif">
-                      {formatCurrency(quote.summary.total)}
-                    </p>
-                    <p className="text-[10px] text-white/30 mt-1">
-                      {quote.timestamp.toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
       </div>
-
-      <style>{`
-        .slider-gold::-webkit-slider-thumb {
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          background: #d4af37;
-          border-radius: 50%;
-          cursor: pointer;
-          transition: transform 0.2s;
-        }
-        .slider-gold::-webkit-slider-thumb:hover {
-          transform: scale(1.2);
-        }
-        .slider-gold::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          background: #d4af37;
-          border-radius: 50%;
-          cursor: pointer;
-          border: none;
-        }
-      `}</style>
     </section>
   );
 }

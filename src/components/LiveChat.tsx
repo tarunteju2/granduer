@@ -16,7 +16,6 @@ import type { ChatMessage } from "@/types";
 
 const QUICK_REPLIES = [
   { id: "event-staff", text: "I need event staff", keywords: ["event", "staff", "need", "hire"] },
-  { id: "rates", text: "What are your rates?", keywords: ["rate", "price", "cost", "charge"] },
   { id: "same-day", text: "Same-day availability?", keywords: ["same-day", "today", "urgent", "emergency", "hours"] },
   { id: "service-areas", text: "Service areas?", keywords: ["area", "location", "region", "where", "serve"] },
 ];
@@ -24,8 +23,6 @@ const QUICK_REPLIES = [
 const BOT_RESPONSES: Record<string, string> = {
   "event-staff":
     "We'd love to help! Could you tell me the event date, location, and approximate guest count? An Account Executive will follow up within 2 hours.",
-  rates:
-    "Our rates vary by service type, event duration, and staff count. For a personalized quote, please share your event details or call us at 1-800-673-0010.",
   "same-day":
     "Yes! We offer emergency staffing with placement available within hours. Call 1-800-673-0010 for immediate assistance.",
   "service-areas":

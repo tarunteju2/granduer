@@ -11,6 +11,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { SERVICES, COMPANY } from "@/data/content";
+import AnimatedSelect from "@/components/AnimatedSelect";
 
 interface FormData {
   /* Step 1 */
@@ -380,21 +381,14 @@ export default function StaffRequestForm() {
                       <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">
                         Event Type
                       </span>
-                      <select
+                      <AnimatedSelect
                         required
                         value={data.eventType}
-                        onChange={(e) => set("eventType", e.target.value)}
-                        className={`${inputClass} appearance-none cursor-pointer`}
-                      >
-                        <option value="" disabled className="bg-black">
-                          Select event type
-                        </option>
-                        {EVENT_TYPES.map((t) => (
-                          <option key={t} className="bg-black">
-                            {t}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(value) => set("eventType", value)}
+                        options={EVENT_TYPES}
+                        placeholder="Select event type"
+                        ariaLabel="Event type"
+                      />
                     </label>
                     <div className="grid gap-x-12 sm:grid-cols-2">
                       <label className="block">

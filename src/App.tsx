@@ -16,7 +16,6 @@ import BackToTop from "@/components/BackToTop";
 import TrustBadges from "@/components/TrustBadges";
 import StatsCounter from "@/components/StatsCounter";
 import EnterpriseProof from "@/components/EnterpriseProof";
-import Pricing from "@/components/Pricing";
 import StaffCalculator from "@/components/StaffCalculator";
 import StaffRequestForm from "@/components/StaffRequestForm";
 import ServiceAreaMap from "@/components/ServiceAreaMap";
@@ -47,7 +46,6 @@ export default function App() {
         <StatsCounter />
         <EnterpriseProof />
         <Services />
-        <Pricing />
         <StaffCalculator />
         <Process />
         <GoogleReviews />

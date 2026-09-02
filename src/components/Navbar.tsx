@@ -185,10 +185,10 @@ export default function Navbar() {
       >
         <nav
           aria-label="Primary navigation"
-          className={`mx-auto flex max-w-320 items-center justify-between rounded-full border px-5 py-3 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] lg:px-7 ${
+          className={`mx-auto flex max-w-320 items-center justify-between border px-5 py-3 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] lg:px-7 ${
             scrolled
-              ? "border-white/20 bg-neutral-900/86 shadow-[0_18px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl"
-              : "border-white/16 bg-neutral-900/66 backdrop-blur-lg"
+              ? "border-white/20 bg-neutral-900/95 shadow-[0_18px_60px_rgba(0,0,0,0.32)] backdrop-blur-md"
+              : "border-white/16 bg-neutral-900/82 backdrop-blur-md"
           }`}
         >
           {/* Mobile menu button */}
@@ -269,10 +269,10 @@ export default function Navbar() {
                       {servicesOpen && (
                         <motion.div
                           ref={servicesMenuRef}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.25, ease: menuEase }}
+                          initial={{ opacity: 0, y: -8, scaleY: 0.94, transformOrigin: "top" }}
+                          animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                          exit={{ opacity: 0, y: -6, scaleY: 0.96 }}
+                          transition={{ duration: 0.32, ease: menuEase }}
                           className="absolute left-1/2 top-full mt-2 -translate-x-1/2"
                           role="menu"
                           aria-label="Services menu"
@@ -280,10 +280,13 @@ export default function Navbar() {
                           <div className="w-[min(90vw,560px)] rounded-2xl border border-white/12 bg-neutral-900/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl">
                             <p className="mb-5 text-[9px] uppercase tracking-[0.3em] text-white/30">Our Services</p>
                             <div className="grid gap-3 sm:grid-cols-2">
-                              {SERVICES.map((service) => {
+                              {SERVICES.map((service, index) => {
                                 const Icon = SERVICE_ICONS[service.id as keyof typeof SERVICE_ICONS];
                                 return (
-                                  <a
+                                  <motion.a
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.035, duration: 0.24, ease: menuEase }}
                                     key={service.id}
                                     href="#services"
                                     onClick={(e) => {
@@ -302,7 +305,7 @@ export default function Navbar() {
                                       <p className="mt-1 text-[13px] leading-snug text-white/70 group-hover:text-white">{service.title}</p>
                                     </div>
                                     <ArrowUpRight size={14} strokeWidth={1.5} className="mt-1 shrink-0 text-white/30 transition-colors group-hover:text-gold-400" />
-                                  </a>
+                                  </motion.a>
                                 );
                               })}
                             </div>

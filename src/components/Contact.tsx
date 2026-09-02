@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Send, CheckCircle } from "lucide-react";
 import { OFFICES, COMPANY } from "@/data/content";
 import TextReveal, { RevealLine } from "@/components/TextReveal";
 import MagneticButton from "@/components/MagneticButton";
+import AnimatedSelect from "@/components/AnimatedSelect";
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -102,7 +103,7 @@ export default function Contact() {
           transition={{ delay: 0.16, duration: 0.65 }}
           className="mb-16 max-w-lg text-[14px] text-white/28 leading-[1.9] font-light"
         >
-          Contact us for pricing or to have one of our account executives come to you to discuss your staffing needs.
+          Tell us about your event and an account executive will help coordinate the right staffing plan.
         </motion.p>
 
         <div className="grid gap-20 lg:grid-cols-12">
@@ -188,15 +189,14 @@ export default function Contact() {
 
                 <label className="block">
                   <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">Service Needed</span>
-                  <select required value={formData.service} onChange={(e) => updateField("service", e.target.value)} className={`${inputClass} appearance-none cursor-pointer`}>
-                    <option value="" disabled className="bg-black">Select a service</option>
-                    <option className="bg-black">Captains / Servers / Bartenders</option>
-                    <option className="bg-black">Chefs / Cooks / Preps / Dishwashers</option>
-                    <option className="bg-black">Housekeepers / Bellman / Porters</option>
-                    <option className="bg-black">Promotional Models</option>
-                    <option className="bg-black">Event Security</option>
-                    <option className="bg-black">Multiple / Other</option>
-                  </select>
+                  <AnimatedSelect
+                    required
+                    value={formData.service}
+                    onChange={(value) => updateField("service", value)}
+                    options={["Captains / Servers / Bartenders", "Chefs / Cooks / Preps / Dishwashers", "Housekeepers / Bellman / Porters", "Promotional Models", "Event Security", "Multiple / Other"]}
+                    placeholder="Select a service"
+                    ariaLabel="Service needed"
+                  />
                 </label>
 
                 <label className="block">

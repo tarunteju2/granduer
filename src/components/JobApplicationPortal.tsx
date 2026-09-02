@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
+import AnimatedSelect from "@/components/AnimatedSelect";
 
 const POSITIONS = [
   "Captain / Maître d'",
@@ -335,59 +336,39 @@ export default function JobApplicationPortal() {
                       <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">
                         Desired Position
                       </span>
-                      <select
+                      <AnimatedSelect
                         required
                         value={position}
-                        onChange={(e) => setPosition(e.target.value)}
-                        className={`${inputClass} appearance-none cursor-pointer`}
-                      >
-                        <option value="" disabled className="bg-black">
-                          Select position
-                        </option>
-                        {POSITIONS.map((p) => (
-                          <option key={p} className="bg-black">
-                            {p}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setPosition}
+                        options={POSITIONS}
+                        placeholder="Select position"
+                        ariaLabel="Desired position"
+                      />
                     </label>
                     <label className="block">
                       <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">
                         Experience Level
                       </span>
-                      <select
+                      <AnimatedSelect
                         required
                         value={experience}
-                        onChange={(e) => setExperience(e.target.value)}
-                        className={`${inputClass} appearance-none cursor-pointer`}
-                      >
-                        <option value="" disabled className="bg-black">
-                          Select experience
-                        </option>
-                        {EXPERIENCE_LEVELS.map((l) => (
-                          <option key={l} className="bg-black">
-                            {l}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setExperience}
+                        options={EXPERIENCE_LEVELS}
+                        placeholder="Select experience"
+                        ariaLabel="Experience level"
+                      />
                     </label>
                     <label className="block">
                       <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">
                         Availability
                       </span>
-                      <select
+                      <AnimatedSelect
                         value={availability}
-                        onChange={(e) => setAvailability(e.target.value)}
-                        className={`${inputClass} appearance-none cursor-pointer`}
-                      >
-                        <option value="" disabled className="bg-black">
-                          Select availability
-                        </option>
-                        <option className="bg-black">Full-time</option>
-                        <option className="bg-black">Part-time</option>
-                        <option className="bg-black">Weekends Only</option>
-                        <option className="bg-black">On-Call / As Needed</option>
-                      </select>
+                        onChange={setAvailability}
+                        options={["Full-time", "Part-time", "Weekends Only", "On-Call / As Needed"]}
+                        placeholder="Select availability"
+                        ariaLabel="Availability"
+                      />
                     </label>
                     <label className="block">
                       <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">

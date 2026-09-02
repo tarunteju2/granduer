@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const LETTERS = "GRANDEUR".split("");
 
 export default function Preloader() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const frameRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);

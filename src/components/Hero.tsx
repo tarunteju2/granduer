@@ -26,7 +26,7 @@ export default function Hero() {
   const motionStyle = shouldReduceMotion ? undefined : { willChange: "transform, opacity" };
 
   return (
-    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="hero-section relative min-h-[100dvh] overflow-hidden bg-[#101416] pt-24 pb-14 lg:pt-24">
+    <section ref={sectionRef} id="home" aria-labelledby="hero-title" className="hero-section relative min-h-[100dvh] overflow-hidden bg-[#101416] pt-24 pb-14 lg:pt-28">
       <div className="absolute inset-0 overflow-hidden bg-[#101416]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_78%_24%,rgba(226,168,145,.12),transparent_34%),linear-gradient(180deg,#101416_0%,#101416_72%,#0c1011_100%)]" />
       </div>
@@ -36,31 +36,31 @@ export default function Hero() {
       <div className="hero-orbit absolute -right-40 top-1/4 h-150 w-150 rounded-full border border-[#e2a891]/20" />
       <div className="hero-orbit hero-orbit-delayed absolute -right-24 top-[29%] h-118 w-118 rounded-full border border-white/10" />
 
-      <motion.div style={{ y: contentY, opacity: contentOpacity, ...motionStyle }} className="relative z-10 mx-auto grid w-full max-w-350 gap-16 px-6 sm:px-10 lg:grid-cols-[minmax(0,1.08fr)_minmax(320px,.92fr)] lg:items-end lg:px-16 xl:px-20">
-        <div className="max-w-180">
+      <motion.div style={{ y: contentY, opacity: contentOpacity, ...motionStyle }} className="relative z-10 mx-auto grid w-full max-w-350 gap-12 px-6 sm:px-10 lg:grid-cols-[minmax(0,1.16fr)_minmax(300px,.84fr)] lg:items-end lg:px-16 xl:px-20">
+        <div className="max-w-6xl">
           <motion.div custom={0.15} initial="hidden" animate="visible" variants={reveal} className="mb-8 flex items-center gap-4">
             <span className="h-px w-12 bg-[#e2a891]" />
             <p className="eyebrow text-[#f1bba6]">Est. {COMPANY.founded} · Private Hospitality</p>
           </motion.div>
 
-          <motion.h1 id="hero-title" custom={0.28} initial="hidden" animate="visible" variants={reveal} className="max-w-165 font-legacy-serif text-[clamp(3.5rem,7.5vw,8.4rem)] font-light leading-[.88] tracking-[-.055em] text-[#f5f1e9]">
-            <span className="block">People who make</span>
-            <em className="block text-[#e2a891]">the moment.</em>
+          <motion.h1 id="hero-title" custom={0.28} initial="hidden" animate="visible" variants={reveal} className="max-w-6xl font-legacy-sans text-[clamp(3.2rem,7vw,7rem)] font-semibold leading-[.92] tracking-[-.065em] text-[#f5f1e9]">
+            <span className="block">Hospitality,</span>
+            <em className="block font-normal text-[#e2a891]">ready before arrival.</em>
           </motion.h1>
 
           <motion.p custom={0.5} initial="hidden" animate="visible" variants={reveal} className="mt-9 max-w-xl text-[15px] leading-[1.9] text-white/62 sm:text-base">
-            Grandeur places trained, discreet hospitality professionals where standards cannot slip. From private estates to the world&apos;s most exacting events.
+            Trained people, briefed precisely, ready wherever the standard is non-negotiable.
           </motion.p>
 
           <motion.div custom={0.68} initial="hidden" animate="visible" variants={reveal} className="mt-11 flex flex-wrap items-center gap-5">
             <MagneticButton strength={0.25}>
               <a href="#request-staff" className="cta-premium group inline-flex items-center gap-5 px-6 py-3.5 text-[10px] font-medium uppercase tracking-[.28em]">
-                Begin a conversation
+                Request staff
                 <ArrowUpRight size={16} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
               </a>
             </MagneticButton>
             <a href="#services" className="group inline-flex items-center gap-3 text-[10px] font-medium uppercase tracking-[.28em] text-white/60 transition-colors hover:text-[#f1bba6]">
-              See our standard
+              View services
               <span className="h-px w-8 bg-white/30 transition-all duration-500 group-hover:w-14 group-hover:bg-[#e2a891]" />
             </a>
           </motion.div>

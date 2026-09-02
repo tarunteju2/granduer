@@ -62,8 +62,8 @@ export default function ReferralCTA() {
           <div className="mt-12 pt-10 border-t border-white/4 grid gap-8 sm:grid-cols-3">
             {[
               { step: "01", title: "Refer", desc: "Share your contact's details with us" },
-              { step: "02", title: "We Connect", desc: "Our team reaches out and provides a quote" },
-              { step: "03", title: "Get Paid", desc: "Receive $500 after their first booked event" },
+              { step: "02", title: "We Connect", desc: "Our team reaches out and confirms the staffing plan" },
+              { step: "03", title: "Build Trust", desc: "Strengthen your network with Grandeur" },
             ].map((item) => (
               <div key={item.step} className="text-center lg:text-left">
                 <span className="text-[11px] font-medium text-gold-400/30 tabular-nums">

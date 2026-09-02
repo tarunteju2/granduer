@@ -63,7 +63,7 @@ export const COMPANY_FACTS = [
   {
     title: "Account Executive Support",
     detail:
-      "Grandeur repeatedly invites clients to meet with an account executive or Senior Account Manager to review staffing needs, pricing, and references.",
+      "Grandeur invites clients to meet with an account executive or Senior Account Manager to review staffing needs, availability, and references.",
   },
 ] as const;
 
@@ -233,9 +233,9 @@ export const FAQ_ITEMS = [
       "Timelines vary by role and headcount, but Grandeur supports both planned staffing and rapid-response requests. Contact an account executive for current lead-time guidance.",
   },
   {
-    question: "Do you provide pricing online?",
+    question: "How does staffing coordination work?",
     answer:
-      "Pricing is customized by service type, event duration, and staffing profile. Grandeur provides tailored quotes after reviewing your requirements.",
+      "Staffing is coordinated around your service type, event duration, guest count, and staffing profile after reviewing your requirements.",
   },
   {
     question: "Which regions do you currently serve?",
@@ -313,7 +313,6 @@ export const NAV_LINKS = [
   { label: "Home", href: "#home" },
   { label: "About", href: "#about" },
   { label: "Services", href: "#services" },
-  { label: "Pricing", href: "#pricing" },
   { label: "Process", href: "#process" },
   { label: "Clients", href: "#clients" },
   { label: "Gallery", href: "#gallery" },

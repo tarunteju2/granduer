@@ -101,15 +101,14 @@ export default function ExitIntentPopup() {
                   <div className="text-center mb-8">
                     <p className="editorial-label mb-6">Before You Go</p>
                     <h3 id={titleId} className="font-serif text-[clamp(1.8rem,4vw,2.5rem)] font-light uppercase tracking-tight leading-[1.1]">
-                      Get a Free
+                      Get Your
                       <br />
-                      <span className="italic text-gold-400">Quote Today</span>
+                      <span className="italic text-gold-400">Staffing Plan</span>
                     </h3>
                   </div>
 
                   <p id={descriptionId} className="text-center text-[13px] text-white/30 font-light leading-relaxed mb-8">
-                    Leave your email and we&apos;ll send you a personalized
-                    staffing proposal within 24 hours. No commitment required.
+                    Leave your email and we&apos;ll help coordinate a staffing plan for your event within 24 hours.
                   </p>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
@@ -126,7 +125,7 @@ export default function ExitIntentPopup() {
                       type="submit"
                       className="w-full flex items-center justify-center gap-3 border border-gold-400/30 py-4 text-[11px] font-medium uppercase tracking-[0.3em] text-gold-400/80 hover:bg-gold-400 hover:text-black transition-all duration-500"
                     >
-                      Get My Free Quote
+                      Request Staff
                       <ArrowRight size={14} strokeWidth={1.5} />
                     </button>
                   </form>

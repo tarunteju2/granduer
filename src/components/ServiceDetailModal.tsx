@@ -10,7 +10,6 @@ import {
   Shield,
   CheckCircle,
   HelpCircle,
-  Calculator,
   ArrowRight,
   UtensilsCrossed,
   ChefHat,
@@ -19,14 +18,11 @@ import {
 } from "lucide-react";
 import {
   type ServiceType,
-  SERVICE_LABELS,
   SERVICE_EQUIPMENT,
   RATIOS_GUIDE,
   EQUIPMENT_PACKAGES,
-  formatCurrency,
   SERVICE_PRICING,
 } from "./pricingEngine";
-import { SERVICES } from "@/data/content";
 
 interface ServiceDetailModalProps {
   isOpen: boolean;
@@ -371,30 +367,14 @@ export default function ServiceDetailModal({
                     </p>
                   </div>
 
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-white/[0.02] border border-white/8 rounded-sm">
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">Min Hours</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">Minimum Assignment</p>
                       <p className="font-serif text-2xl text-gold-400/70">{pricing.minimumHours}h</p>
                     </div>
                     <div className="p-4 bg-white/[0.02] border border-white/8 rounded-sm">
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">From</p>
-                      <p className="font-serif text-2xl text-gold-400/70">{formatCurrency(pricing.baseRatePerHour)}/hr</p>
-                    </div>
-                    <div className="p-4 bg-white/[0.02] border border-white/8 rounded-sm">
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">Half Day</p>
-                      <p className="font-serif text-2xl text-gold-400/70">{formatCurrency(pricing.halfDayRate)}</p>
-                    </div>
-                  </div>
-
-                  {/* Pricing Note */}
-                  <div className="p-4 bg-gold-400/5 border border-gold-400/20 rounded-sm">
-                    <div className="flex items-start gap-3">
-                      <Calculator size={16} className="text-gold-400/60 mt-0.5 shrink-0" strokeWidth={1.5} />
-                      <p className="text-[12px] text-white/60 leading-relaxed">
-                        Volume discounts available for larger teams. Holiday and weekend surcharges apply.
-                        Contact us for custom quotes on extended engagements.
-                      </p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-2">Planning Support</p>
+                      <p className="font-serif text-2xl text-gold-400/70">Included</p>
                     </div>
                   </div>
 
@@ -513,8 +493,8 @@ export default function ServiceDetailModal({
                               <h4 className="text-[12px] uppercase tracking-[0.1em] text-white/70 font-medium">
                                 {pkg.name}
                               </h4>
-                              <span className="text-[11px] text-gold-400/60">
-                                +{formatCurrency(pkg.pricePerEvent)}
+                              <span className="text-[11px] text-white/35 uppercase tracking-[0.16em]">
+                                Available on request
                               </span>
                             </div>
                             <p className="text-[11px] text-white/40 font-light mb-3">
@@ -593,7 +573,7 @@ export default function ServiceDetailModal({
                 }}
                 className="inline-flex items-center gap-2 border border-gold-400/30 px-6 py-3 text-[10px] uppercase tracking-[0.2em] text-gold-400 hover:bg-gold-400 hover:text-black transition-all duration-500 rounded-sm"
               >
-                Request Quote
+                Request staff
                 <ArrowRight size={12} strokeWidth={1.5} />
               </button>
             </div>

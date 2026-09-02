@@ -1,0 +1,46 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.granduerstaffing.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Block common bot traps and admin paths
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*.json$
+Disallow: /dist/
+Disallow: /node_modules/
+
+# Allow search engines to crawl all public pages
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Block AI training crawlers unless explicitly permitted
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+# Specific directives for different crawlers
+User-agent: *
+Sitemap: https://www.granduerstaffing.com/sitemap.xml

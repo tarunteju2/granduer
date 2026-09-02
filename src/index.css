@@ -367,3 +367,59 @@ textarea:focus-visible {
     text-decoration: underline;
   }
 }
+
+/* Industrial service-desk visual layer. */
+:root {
+  --industrial-graphite: #0d1112;
+  --industrial-panel: #161d1e;
+  --industrial-bone: #f0eee7;
+  --industrial-signal: #d58f78;
+  --industrial-line: rgba(240, 238, 231, .16);
+}
+
+body {
+  background-color: var(--industrial-graphite);
+  background-image: linear-gradient(rgba(240, 238, 231, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(240, 238, 231, .025) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.hero-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0 72%, rgba(213, 143, 120, .06) 72%, transparent 100%);
+  mix-blend-mode: screen;
+}
+
+.service-row,
+.glass-edge,
+.luxury-card-surface,
+.cta-premium {
+  border-radius: 0;
+}
+
+.glass-edge {
+  background: rgba(22, 29, 30, .72);
+  backdrop-filter: blur(8px);
+}
+
+.luxury-card-surface {
+  background: linear-gradient(135deg, rgba(22, 29, 30, .94), rgba(13, 17, 18, .98));
+  box-shadow: inset 0 1px 0 rgba(240, 238, 231, .08);
+}
+
+.aurora-veil {
+  opacity: .36;
+  background: linear-gradient(90deg, transparent 0 58%, rgba(213, 143, 120, .08) 100%);
+}
+
+.aurora-veil::before,
+.aurora-veil__bloom,
+.aurora-veil__haze {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { background-image: none; }
+}
