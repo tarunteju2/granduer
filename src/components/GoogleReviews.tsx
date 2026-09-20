@@ -1,5 +1,15 @@
-import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { EASE_OUT } from "@/lib/motion";
+
+/**
+ * Testimonials — single-open editorial quote (DESIGN.md directive 3).
+ * Left rail: monospace client index, terracotta only on the active row.
+ * Main: oversized Fraunces light quote with one italic terracotta phrase and
+ * a single monospace rating/data line matching the ledger language.
+ * AnimatePresence mode="wait" crossfade — opacity and 12px y only.
+ */
 
 interface Review {
   name: string;
@@ -7,6 +17,8 @@ interface Review {
   venue: string;
   rating: number;
   text: string;
+  /** Phrase rendered in italic terracotta within the quote. */
+  emphasis: string;
   date: string;
 }
 
@@ -16,7 +28,8 @@ const REVIEWS: Review[] = [
     role: "Event Director",
     venue: "The Pierre Hotel",
     rating: 5,
-    text: "Grandeur provided 45 servers for our annual gala with less than 48 hours notice. Every single one was professional, well-groomed, and knew exactly what to do. Absolutely exceptional.",
+    text: "Grandeur staffed our gala in under 48 hours. Every server arrived polished, prepared, and ready to work.",
+    emphasis: "in under 48 hours",
     date: "2 weeks ago",
   },
   {
@@ -24,7 +37,8 @@ const REVIEWS: Review[] = [
     role: "General Manager",
     venue: "Westchester Country Club",
     rating: 5,
-    text: "We've been using Grandeur for over 8 years. Their staff consistently exceeds our members' expectations. The captains they send know fine dining inside and out.",
+    text: "Their captains understand fine dining and consistently exceed our members' expectations.",
+    emphasis: "understand fine dining",
     date: "1 month ago",
   },
   {
@@ -32,7 +46,8 @@ const REVIEWS: Review[] = [
     role: "Catering Director",
     venue: "Cipriani Wall Street",
     rating: 5,
-    text: "When our in-house team was short-staffed during wedding season, Grandeur filled 30 positions overnight. The quality was indistinguishable from our own team. Remarkable.",
+    text: "Grandeur filled 30 positions overnight. The quality was indistinguishable from our own team.",
+    emphasis: "overnight",
     date: "3 weeks ago",
   },
   {
@@ -40,7 +55,8 @@ const REVIEWS: Review[] = [
     role: "Operations Manager",
     venue: "Fontainebleau Miami",
     rating: 5,
-    text: "Their South Florida team is outstanding. From housekeeping to bartending, every person Grandeur sends is trained, punctual, and genuinely hospitable. A game-changer for our hotel.",
+    text: "From housekeeping to bartending, every person they send is trained, punctual, and hospitable.",
+    emphasis: "every person they send",
     date: "1 month ago",
   },
   {
@@ -48,145 +64,139 @@ const REVIEWS: Review[] = [
     role: "Wedding Planner",
     venue: "Independent",
     rating: 5,
-    text: "I recommend Grandeur to every bride I work with. Their attention to detail is unmatched. They even coordinate with the florist and photographer without being asked.",
+    text: "Their attention to detail is unmatched. I recommend Grandeur to every bride I work with.",
+    emphasis: "unmatched",
     date: "2 months ago",
   },
   {
     name: "Robert F.",
     role: "VP of Events",
-    venue: "Fortune 500 Company",
+    venue: "Fortune 500 company",
     rating: 5,
-    text: "We host 50+ corporate events per year and trust Grandeur with every single one. Their security team is especially impressive. Retired NYPD professionals handle our VIPs with discretion.",
+    text: "We trust Grandeur with every corporate event. Their security team handles VIPs with discretion.",
+    emphasis: "with discretion",
     date: "3 weeks ago",
   },
 ];
 
-function Stars({ count }: { count: number }) {
-  return (
-    <div className="flex gap-1">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          size={12}
-          strokeWidth={0}
-          fill={i < count ? "rgba(196,163,90,0.6)" : "rgba(255,255,255,0.06)"}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function GoogleReviews() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const reduced = useReducedMotion();
+  const active = REVIEWS[activeIndex];
+
   return (
-    <section className="relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
-        <div className="editorial-rule mb-24" />
+    <section id="reviews" className="relative overflow-hidden">
+      <div className="shell">
+        <div className="editorial-rule mb-20" />
 
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-16">
-          <div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="editorial-label mb-8"
-            >
-              Reviews
-            </motion.p>
+        <motion.h2
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-12% 0px" }}
+          transition={{ duration: 0.7, ease: EASE_OUT }}
+          className="text-display-2 max-w-xl font-legacy-serif font-light leading-[1.02] tracking-[-0.03em] text-[#f5f1e9]"
+        >
+          What our clients <em className="font-normal italic text-[#e2a891]">are saying.</em>
+        </motion.h2>
 
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1, duration: 0.8 }}
-              className="max-w-lg font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight"
-            >
-              What Our Clients
-              <br />
-              <span className="italic text-gold-400">Are Saying</span>
-            </motion.h2>
-          </div>
-
-          {/* Overall rating */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-8 lg:mt-0 flex items-center gap-6"
-          >
-            <div className="text-right">
-              <p className="font-serif text-5xl font-light text-white">5.0</p>
-              <div className="mt-2 flex justify-end">
-                <Stars count={5} />
-              </div>
-            </div>
-            <div className="border-l border-white/6 pl-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-white/35 font-medium">
-                Google Reviews
-              </p>
-              <p className="text-[11px] text-white/20 mt-1">
-                Based on {REVIEWS.length} reviews
-              </p>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Reviews grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {REVIEWS.map((review, i) => (
-            <motion.div
-              key={review.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.05 + i * 0.08, duration: 0.5 }}
-              className="group border border-white/4 p-8 hover:border-white/8 transition-colors"
-            >
-              <Stars count={review.rating} />
-
-              <p className="mt-5 text-[13px] text-white/35 font-light leading-[1.9] line-clamp-4 group-hover:text-white/45 transition-colors">
-                &ldquo;{review.text}&rdquo;
-              </p>
-
-              <div className="mt-6 pt-5 border-t border-white/4">
-                <p className="text-[12px] font-medium uppercase tracking-[0.2em] text-white/45">
+        <div className="mt-16 grid gap-12 lg:grid-cols-[240px_1fr] lg:gap-20">
+          {/* Left rail — monospace client index */}
+          <ul className="flex flex-row gap-6 overflow-x-auto lg:flex-col lg:gap-0" aria-label="Client testimonials">
+            {REVIEWS.map((review, index) => (
+              <li key={review.name} className="lg:border-b lg:border-[rgba(245,241,233,0.12)] lg:last:border-b-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  aria-current={activeIndex === index}
+                  className={cn(
+                    "relative flex items-baseline gap-3 whitespace-nowrap py-3 font-mono text-[11px] tracking-[0.08em] transition-colors duration-200 lg:w-full lg:py-4 lg:pl-6",
+                    activeIndex === index
+                      ? "text-[#f5f1e9]"
+                      : "text-[#849093] hover:text-[#f5f1e9]/80",
+                  )}
+                >
+                  {/* Terracotta 12px rule for the active index */}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "absolute left-0 top-1/2 hidden h-px w-3 -translate-y-1/2 bg-[#e2a891] transition-opacity duration-200 lg:block",
+                      activeIndex === index ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "tabular-nums",
+                      activeIndex === index ? "text-[#e2a891]" : "text-[#849093]",
+                    )}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                   {review.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Main — oversized editorial quote */}
+          <div className="min-h-[320px] lg:min-h-[360px]">
+            <AnimatePresence mode="wait">
+              <motion.article
+                key={active.name}
+                initial={{ opacity: 0, y: reduced ? 0 : 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: reduced ? 0 : -8 }}
+                transition={{ duration: 0.5, ease: EASE_OUT }}
+              >
+                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#849093] tabular-nums">
+                  {active.rating.toFixed(1)} · Google · {active.date}
                 </p>
-                <p className="mt-1 text-[11px] text-white/20 font-light">
-                  {review.role} &middot; {review.venue}
-                </p>
-                <p className="mt-2 text-[10px] text-white/15">{review.date}</p>
-              </div>
-            </motion.div>
-          ))}
+
+                <blockquote className="mt-10">
+                  <p className="max-w-3xl font-legacy-serif text-[clamp(1.9rem,3.6vw,3rem)] font-light leading-[1.22] tracking-[-0.02em] text-[#f5f1e9]">
+                    “
+                    {active.emphasis.length > 0 && active.text.includes(active.emphasis) ? (
+                      (() => {
+                        const [before, after] = active.text.split(active.emphasis);
+                        return (
+                          <>
+                            {before}
+                            <em className="font-normal italic text-[#e2a891]">{active.emphasis}</em>
+                            {after}
+                          </>
+                        );
+                      })()
+                    ) : (
+                      active.text
+                    )}
+                    ”
+                  </p>
+                </blockquote>
+
+                <div className="mt-12 border-t border-[rgba(245,241,233,0.12)] pt-6">
+                  <p className="text-[13px] font-medium tracking-[0.02em] text-[#f5f1e9]">{active.name}</p>
+                  <p className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#849093]">
+                    {active.role} · {active.venue}
+                  </p>
+                </div>
+              </motion.article>
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Google attribution */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-12 text-center"
+          viewport={{ once: true, margin: "-12% 0px" }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="mt-14"
         >
           <a
             href="https://www.google.com/maps"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-white/20 hover:text-white/35 transition-colors"
+            className="inline-flex items-center gap-3 font-mono text-[11px] tracking-[0.12em] text-[#849093] transition-colors duration-200 hover:text-[#e2a891]"
           >
-            <svg
-              viewBox="0 0 24 24"
-              className="w-4 h-4"
-              fill="currentColor"
-            >
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            View on Google
+            Read more on Google
           </a>
         </motion.div>
       </div>

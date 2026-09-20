@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Granduer Dev Server",
+			"type": "shell",
+			"command": "cd /Users/tarun/Desktop/Projects/grandeur/website && npm run dev",
+			"group": "npm"
+		}
+	]
+}

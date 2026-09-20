@@ -9,9 +9,8 @@
  * - Error handling
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 // Note: These tests focus on form logic and validation
 // Full component testing would require React Testing Library setup
@@ -300,6 +299,7 @@ describe('Event Types and Services', () => {
   const EVENT_TYPES = [
     'Wedding Reception',
     'Corporate Gala',
+    'Corporate Event',
     'Private Dinner',
     'Charity Event',
     'Trade Show',
@@ -308,8 +308,8 @@ describe('Event Types and Services', () => {
     'Other',
   ];
 
-  it('should have 8 event types', () => {
-    expect(EVENT_TYPES).toHaveLength(8);
+  it('should have 9 event types', () => {
+    expect(EVENT_TYPES).toHaveLength(9);
   });
 
   it('should include common event types', () => {

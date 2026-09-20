@@ -1,5 +1,96 @@
 @import "tailwindcss";
 
+@theme inline {
+  --radius-full: 999px;
+}
+
+@media (pointer: fine) {
+  html.magnetic-cursor-enabled,
+  html.magnetic-cursor-enabled body,
+  html.magnetic-cursor-enabled a,
+  html.magnetic-cursor-enabled button {
+    cursor: none;
+  }
+}
+
+.magnetic-cursor {
+  contain: layout style paint;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magnetic-cursor {
+    display: none;
+  }
+}
+
+
+@keyframes strok {
+  100% {
+    stroke-dashoffset: 400;
+  }
+}
+
+@keyframes clients-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+.clients-marquee-track {
+  animation: clients-marquee 24s linear infinite;
+  will-change: transform;
+}
+
+.clients-marquee:hover .clients-marquee-track,
+.clients-marquee:focus-within .clients-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clients-marquee-track,
+  .clients-marquee-track--reduced {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+}
+
+/* Editorial footer accents inspired by cinematic 21st.dev motion patterns. */
+.footer-art-word {
+  color: transparent;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(8rem, 25vw, 24rem);
+  font-weight: 300;
+  letter-spacing: -0.08em;
+  line-height: 0.7;
+  opacity: 0.09;
+  -webkit-text-stroke: 1px rgba(241, 187, 166, 0.42);
+  text-wrap: nowrap;
+}
+
+.footer-art-marquee-track {
+  animation: footer-art-marquee 34s linear infinite;
+  will-change: transform;
+}
+
+@keyframes footer-art-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-art-marquee-track {
+    animation: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer-art-word {
+    font-size: clamp(5rem, 26vw, 9rem);
+  }
+}
+
+
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Fraunces", Georgia, serif;
@@ -41,12 +132,41 @@ body::before {
 }
 ::selection { background: rgba(226,168,145,.28); color: #fff; }
 :focus-visible { outline: 1px solid rgba(226,168,145,.8); outline-offset: 3px; }
-button, [role="button"], input, select, textarea { border-radius: 2px; }
+button, [role="button"], input, select, textarea { border-radius: 8px; }
+button:focus-visible, [role="button"]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid rgba(226,168,145,.9);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(226,168,145,.15);
+}
+/* Concierge form: underline is the visible field affordance. Keep it terracotta
+   for keyboard and programmatic focus, regardless of utility order. */
+#request-staff input:focus,
+#request-staff textarea:focus,
+#request-staff select:focus,
+#request-staff button[aria-haspopup="listbox"]:focus {
+  border-style: solid !important;
+  border-width: 0 0 1px 0 !important;
+  border-color: #e2a891 !important;
+  border-bottom-color: #e2a891 !important;
+  border-bottom-style: solid !important;
+  border-bottom-width: 1px !important;
+  box-shadow: inset 0 -1px 0 #e2a891 !important;
+}
 .font-legacy-serif { font-family: "Fraunces", Georgia, serif; }
 .font-legacy-sans { font-family: "Outfit", ui-sans-serif, system-ui, sans-serif; }
-.eyebrow { font-size: 10px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase; }
+.eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase; }
 .editorial-label { @apply text-[11px] font-medium uppercase tracking-[.3em] text-[#f1bba6]/75; }
 .editorial-rule { height: 1px; background: linear-gradient(90deg, transparent, rgba(226,168,145,.42), rgba(255,255,255,.14), transparent); }
+/* One content axis: every section container resolves to the same width (1200px) and inset. */
+.shell {
+  margin-inline: auto;
+  max-width: 75rem; /* 1200px */
+  padding-inline: 1.5rem;
+}
+@media (min-width: 640px) { .shell { padding-inline: 2.5rem; } }
+@media (min-width: 1024px) { .shell { padding-inline: 5rem; } }
+/* Display scale collapses to two tiers: hero (~6.4rem) and every other section heading (76px). */
+.text-display-2 { font-size: clamp(2.5rem, 5.3vw, 4.75rem); }
 .section-shell, .section-chapter { position: relative; overflow: hidden; }
 .section-shell::before, .section-chapter::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 12% 20%, rgba(226,168,145,.06), transparent 34%), radial-gradient(circle at 90% 80%, rgba(255,255,255,.04), transparent 38%); }
 .glass-edge { border: 1px solid rgba(255,255,255,.14); background: rgba(21,27,29,.55); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); backdrop-filter: blur(16px); }
@@ -126,6 +246,95 @@ main > section:not(#home)::after { content: ""; position: absolute; inset-inline
     max-width: min(90vw, 100rem);
   }
 }
+@media (min-width: 1280px) {
+  main > section > .shell {
+    max-width: 75rem;
+  }
+}
+
+.animated-tab-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 3.25rem;
+  padding: 0.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(16, 20, 22, 0.72);
+  backdrop-filter: blur(14px);
+  isolation: isolate;
+}
+
+.animated-tab-bar__item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  min-height: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  color: rgba(241, 242, 237, 0.55);
+  transition: color 220ms ease, transform 220ms ease;
+}
+
+.animated-tab-bar__item:hover,
+.animated-tab-bar__item.is-active {
+  color: #101416;
+}
+
+.animated-tab-bar__item:active {
+  transform: scale(0.97);
+}
+
+.animated-tab-bar__label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.animated-tab-bar__border {
+  position: absolute;
+  z-index: 0;
+  top: 0.3rem;
+  left: 0;
+  width: 4.7rem;
+  height: 2.6rem;
+  border: 1px solid rgba(226, 168, 145, 0.7);
+  background: #e2a891;
+  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1), width 240ms ease;
+}
+
+@media (max-width: 1279px) {
+  .animated-tab-bar__label {
+    display: none;
+  }
+
+  .animated-tab-bar__item {
+    width: 2.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .animated-tab-bar {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .animated-tab-bar__item {
+    flex: 1;
+  }
+
+  .animated-tab-bar__border {
+    width: calc((100% - 0.8rem) / 5);
+  }
+}
+
+/* =============================================================================
+   SECTION SHELL IMPROVEMENTS - Better visual hierarchy with alternating backgrounds
+   ============================================================================= */
 
 /* =============================================================================
    SECTION SHELL IMPROVEMENTS - Better visual hierarchy with alternating backgrounds
@@ -135,6 +344,7 @@ main > section:not(#home)::after { content: ""; position: absolute; inset-inline
 main > section:not(#home) {
   background-color: #12181a;
   position: relative;
+  padding-block: clamp(6rem, 8vw, 9rem);
 }
 
 /* Create distinct visual rhythm with alternating section backgrounds */
@@ -175,11 +385,20 @@ main > section:not(#home)::before {
   .section-shell {
     padding-block: clamp(6rem, 8vw, 9rem);
   }
+
+  /* Single section cadence for every main-axis section, shell or not. */
+  main > section {
+    padding-block: clamp(6rem, 8vw, 9rem);
+  }
 }
 
 @media (max-width: 767px) {
   .section-chapter,
   .section-shell {
+    padding-block: 5rem;
+  }
+
+  main > section {
     padding-block: 5rem;
   }
 }
@@ -209,6 +428,10 @@ main > section:not(#home)::before {
     padding-inline: clamp(1.5rem, 4vw, 3rem);
   }
 
+  main > section > .shell {
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
+  }
+
   /* Reduce animation complexity on tablets */
   .hero-orbit {
     animation-duration: 30s;
@@ -229,6 +452,11 @@ main > section:not(#home)::before {
 
   /* Full-width sections on mobile */
   main > section > .mx-auto {
+    width: 100%;
+    padding-inline: 1.25rem;
+  }
+
+  main > section > .shell {
     width: 100%;
     padding-inline: 1.25rem;
   }
@@ -370,7 +598,8 @@ textarea:focus-visible {
 
 /* Industrial service-desk visual layer. */
 :root {
-  --industrial-graphite: #0d1112;
+  /* DESIGN.md charcoal canvas — was #0d1112, darkened the intended body color */
+  --industrial-graphite: #101416;
   --industrial-panel: #161d1e;
   --industrial-bone: #f0eee7;
   --industrial-signal: #d58f78;
@@ -379,8 +608,7 @@ textarea:focus-visible {
 
 body {
   background-color: var(--industrial-graphite);
-  background-image: linear-gradient(rgba(240, 238, 231, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(240, 238, 231, .025) 1px, transparent 1px);
-  background-size: 72px 72px;
+  background-image: none;
 }
 
 .hero-section::after {
@@ -405,7 +633,7 @@ body {
 }
 
 .luxury-card-surface {
-  background: linear-gradient(135deg, rgba(22, 29, 30, .94), rgba(13, 17, 18, .98));
+  background: linear-gradient(135deg, rgba(22, 29, 30, .94), rgba(16, 20, 22, .98));
   box-shadow: inset 0 1px 0 rgba(240, 238, 231, .08);
 }
 
@@ -422,4 +650,321 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   body { background-image: none; }
+}
+
+/* GSAP card fan carousel. The layout gives transformed cards a stable stage. */
+.fan-layout {
+  min-height: clamp(22rem, 42vw, 38rem);
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+}
+
+.fan-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(9.5rem, 22vw, 20rem);
+  aspect-ratio: 4 / 5;
+  margin-left: clamp(-10rem, -11vw, -4.75rem);
+  margin-top: clamp(-12.5rem, -14vw, -6rem);
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+  transform-origin: center bottom;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid rgba(240, 238, 231, .2);
+  border-radius: 1rem;
+  background: #161d1e;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255, 255, 255, .16);
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+
+.fan-card:hover {
+  border-color: rgba(226, 168, 145, .7);
+  box-shadow: 0 28px 65px rgba(0, 0, 0, .5), 0 0 0 1px rgba(226, 168, 145, .1);
+}
+
+.fan-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(16, 20, 22, .02) 45%, rgba(16, 20, 22, .5));
+}
+
+@media (max-width: 767px) {
+  .fan-layout {
+    min-height: 22rem;
+  }
+
+  .fan-card {
+    width: clamp(8.25rem, 42vw, 13rem);
+    margin-left: clamp(-6.5rem, -21vw, -4.125rem);
+    margin-top: clamp(-9rem, -29vw, -5.5rem);
+    border-radius: .75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fan-card {
+    transition: none;
+  }
+}
+
+/* Keep the shared silk canvas visible behind every site section. */
+.silk-site-shell main > section,
+.silk-site-shell footer > section {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Keep the shared canvas visible through every page-wide section surface. */
+.silk-site-shell main > section.bg-\[\#151b1d\],
+.silk-site-shell footer {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+.silk-site-shell > canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+.silk-site-shell .hero-section > .absolute {
+  background-color: transparent !important;
+}
+
+.silk-site-shell .hero-section > .absolute > div {
+  background-image: linear-gradient(
+    180deg,
+    rgba(16, 20, 22, 0.24) 0%,
+    rgba(16, 20, 22, 0.18) 72%,
+    rgba(12, 16, 17, 0.3) 100%
+  ) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .silk-site-shell canvas {
+    animation: none;
+  }
+}
+
+/* =============================================================================
+   LIGHT MODE THEME - Airy white satin with gold accents
+   ============================================================================= */
+
+[data-theme="light"] {
+  --light-base: #faf8f5;
+  --light-surface: #f5f3f0;
+  --light-surface-alt: #f0ede9;
+  --light-gold: #d4a574;
+  --light-gold-muted: #c49a66;
+  --light-text: #1a1816;
+  --light-text-muted: #4a4540;
+  --light-border: rgba(26, 24, 22, 0.08);
+  --light-border-strong: rgba(26, 24, 22, 0.15);
+}
+
+[data-theme="light"] body {
+  background-color: #faf8f5;
+  color: #1a1816;
+}
+
+[data-theme="light"] .section-chapter,
+[data-theme="light"] .section-shell {
+  background-color: #f5f3f0;
+}
+
+[data-theme="light"] main > section:nth-of-type(odd) {
+  background-color: #faf8f5;
+}
+
+[data-theme="light"] main > section:nth-of-type(3n) {
+  background-color: #f0ede9;
+}
+
+[data-theme="light"] .glass-edge {
+  background: rgba(250, 248, 245, 0.85);
+  border-color: rgba(26, 24, 22, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .luxury-card-surface {
+  background: linear-gradient(145deg, rgba(250, 248, 245, 0.95), rgba(245, 243, 240, 0.98));
+  border-color: rgba(26, 24, 22, 0.08);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .luxury-card-surface:hover {
+  border-color: rgba(212, 165, 116, 0.4);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .editorial-rule {
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.4), rgba(26, 24, 22, 0.06), transparent);
+}
+
+[data-theme="light"] .editorial-label {
+  color: rgba(180, 145, 100, 0.9);
+}
+
+[data-theme="light"] .aurora-veil {
+  background: radial-gradient(ellipse at 82% 24%, rgba(212, 165, 116, 0.1), transparent 30%),
+              radial-gradient(ellipse at 68% 70%, rgba(200, 180, 150, 0.06), transparent 38%);
+  opacity: 0.5;
+}
+
+[data-theme="light"] .cta-premium {
+  border-color: rgba(212, 165, 116, 0.8);
+  color: #faf8f5;
+  background: linear-gradient(135deg, #d4a574, #c49a66);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] .cta-premium:hover {
+  background: linear-gradient(135deg, #c49a66, #b48a56);
+  color: #faf8f5;
+}
+
+/* Light mode text colors - warm dark tones */
+[data-theme="light"] .text-white\/25 { color: rgba(26, 24, 22, 0.35); }
+[data-theme="light"] .text-white\/28 { color: rgba(26, 24, 22, 0.4); }
+[data-theme="light"] .text-white\/30 { color: rgba(26, 24, 22, 0.45); }
+[data-theme="light"] .text-white\/35 { color: rgba(26, 24, 22, 0.5); }
+[data-theme="light"] .text-white\/40 { color: rgba(26, 24, 22, 0.55); }
+[data-theme="light"] .text-white\/42 { color: rgba(26, 24, 22, 0.58); }
+[data-theme="light"] .text-white\/45 { color: rgba(26, 24, 22, 0.62); }
+[data-theme="light"] .text-white\/50 { color: rgba(26, 24, 22, 0.68); }
+[data-theme="light"] .text-white\/52 { color: rgba(26, 24, 22, 0.72); }
+[data-theme="light"] .text-white\/55 { color: rgba(26, 24, 22, 0.75); }
+[data-theme="light"] .text-white\/60 { color: rgba(26, 24, 22, 0.8); }
+[data-theme="light"] .text-white\/62 { color: rgba(26, 24, 22, 0.82); }
+[data-theme="light"] .text-white\/65 { color: rgba(26, 24, 22, 0.85); }
+[data-theme="light"] .text-white\/70 { color: rgba(26, 24, 22, 0.88); }
+[data-theme="light"] .text-white { color: #1a1816; }
+
+/* Light mode nav bar - airy glass effect */
+[data-theme="light"] header .pointer-events-auto {
+  background: rgba(250, 248, 245, 0.92) !important;
+  border-color: rgba(26, 24, 22, 0.1) !important;
+  backdrop-filter: blur(16px);
+}
+
+[data-theme="light"] header .text-white\/70 {
+  color: rgba(26, 24, 22, 0.7);
+}
+
+[data-theme="light"] header .text-white\/60 {
+  color: rgba(26, 24, 22, 0.55);
+}
+
+/* Light mode footer */
+[data-theme="light"] footer {
+  background: #f0ede9 !important;
+}
+
+[data-theme="light"] .motion-footer-glass-pill {
+  background: rgba(250, 248, 245, 0.9);
+  border-color: rgba(26, 24, 22, 0.08);
+  color: rgba(26, 24, 22, 0.75);
+}
+
+[data-theme="light"] .motion-footer-glass-pill:hover {
+  background: rgba(250, 248, 245, 0.98);
+  border-color: rgba(26, 24, 22, 0.15);
+  color: rgba(26, 24, 22, 0.92);
+}
+
+[data-theme="light"] .footer-giant-bg-text {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(26, 24, 22, 0.04);
+  background: linear-gradient(180deg, rgba(26, 24, 22, 0.06) 0%, transparent 60%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-theme="light"] .footer-text-glow {
+  background: linear-gradient(180deg, rgba(26, 24, 22, 0.9) 0%, rgba(26, 24, 22, 0.5) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0px 0px 20px rgba(212, 165, 116, 0.1));
+}
+
+/* Light mode section dividers */
+[data-theme="light"] main > section:not(#home)::after {
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.15), transparent);
+}
+
+/* Light mode service row */
+[data-theme="light"] .service-row {
+  border-color: rgba(26, 24, 22, 0.06);
+}
+
+/* Light mode form elements */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background: rgba(250, 248, 245, 0.95);
+  border-color: rgba(26, 24, 22, 0.12);
+  color: #1a1816;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: rgba(26, 24, 22, 0.4);
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] select:focus {
+  border-color: rgba(212, 165, 116, 0.5);
+  box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.12);
+}
+
+/* Light mode scrollbar - subtle and elegant */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f0ede9;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(26, 24, 22, 0.15);
+  border-radius: 4px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 24, 22, 0.25);
+}
+
+/* Light mode selection */
+[data-theme="light"] ::selection {
+  background: rgba(212, 165, 116, 0.25);
+  color: #1a1816;
+}
+
+/* Light mode focus states */
+[data-theme="light"] :focus-visible {
+  outline-color: rgba(212, 165, 116, 0.6);
+}
+
+/* Light mode animated tab bar */
+[data-theme="light"] .animated-tab-bar {
+  background: rgba(250, 248, 245, 0.9);
+  border-color: rgba(26, 24, 22, 0.08);
+}
+
+[data-theme="light"] .animated-tab-bar__item {
+  color: rgba(26, 24, 22, 0.55);
+}
+
+[data-theme="light"] .animated-tab-bar__item:hover,
+[data-theme="light"] .animated-tab-bar__item.is-active {
+  color: #faf8f5;
 }

@@ -160,14 +160,15 @@ function MessageBubble({ message, index }: MessageBubbleProps) {
 // ============================================
 
 export default function LiveChat() {
-  const { isOpen, messages, isTyping, unreadCount } = useChat();
+  const chat = useChat();
+  const { isOpen, messages, isTyping, unreadCount, sessionId } = chat;
   const {
-    toggleChat,
     openChat,
     closeChat,
     addMessage,
     setTyping,
     clearMessages,
+    setSessionId,
   } = useChatActions();
 
   const [input, setInput] = useState("");
@@ -175,6 +176,64 @@ export default function LiveChat() {
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const pendingResponseRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pendingResponseRef.current !== null) {
+        window.clearTimeout(pendingResponseRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShowQuickReplies(messages.length <= 1);
+    }
+  }, [isOpen, messages.length]);
+
+  useEffect(() => {
+    if (messages.length <= 1) {
+      setShowQuickReplies(true);
+    }
+  }, [messages.length]);
+
+  useEffect(() => {
+    if (isOpen && !sessionId) {
+      setSessionId(`session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`);
+    }
+  }, [isOpen, sessionId, setSessionId]);
+
+  useEffect(() => {
+    if (!isOpen || !sessionId) return;
+
+    let cancelled = false;
+    const loadHistory = async () => {
+      try {
+        const response = await fetch(`/api/chat/history/${encodeURIComponent(sessionId)}`);
+        if (!response.ok) return;
+        const data = await response.json();
+        if (cancelled || !Array.isArray(data.messages) || data.messages.length === 0) return;
+
+        clearMessages();
+        for (const message of data.messages) {
+          if (message.role === "user" || message.role === "bot") {
+            addMessage({
+              role: message.role,
+              text: message.text ?? message.message ?? "",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Chat history error:", error);
+      }
+    };
+
+    void loadHistory();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, sessionId, clearMessages, addMessage]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -190,29 +249,51 @@ export default function LiveChat() {
     }
   }, [isOpen]);
 
-  // Hide quick replies after user sends a message
-  useEffect(() => {
-    if (messages.length > 1) {
-      setShowQuickReplies(false);
-    }
-  }, [messages.length]);
+  // Get bot response from API
+  const getBotResponseFromAPI = useCallback(
+    async (userText: string, sid: string) => {
+      try {
+        const response = await fetch('/api/chat/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: sid,
+            message: userText,
+            role: 'user',
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Chat API request failed');
+        }
+
+        const data = await response.json();
+        return data.response?.text || getBotResponse(userText);
+      } catch (error) {
+        console.error('Chat API error:', error);
+        return getBotResponse(userText);
+      }
+    },
+    []
+  );
 
   // Simulate bot response
   const simulateBotResponse = useCallback(
-    (userText: string) => {
-      const response = getBotResponse(userText);
+    async (userText: string) => {
+      const currentSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+      if (!sessionId) setSessionId(currentSessionId);
+
+      const response = await getBotResponseFromAPI(userText, currentSessionId);
       const delay = getTypingDelay(response.length);
 
-      // Show typing indicator
       setTyping(true);
-
-      // Send response after delay
-      setTimeout(() => {
+      pendingResponseRef.current = window.setTimeout(() => {
         setTyping(false);
         addMessage({ role: "bot", text: response });
+        pendingResponseRef.current = null;
       }, delay);
     },
-    [setTyping, addMessage]
+    [sessionId, setSessionId, setTyping, addMessage, getBotResponseFromAPI]
   );
 
   // Handle send message

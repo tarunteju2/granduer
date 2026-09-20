@@ -222,6 +222,82 @@ app.post(['/api/careers/apply', '/api/applications'], rateLimiter, (req, res) =>
   });
 });
 
+// 3. Chat Message Endpoint
+const chatSessions = new Map();
+
+app.post('/api/chat/message', rateLimiter, (req, res) => {
+  const { sessionId, message, role } = req.body;
+
+  if (!sessionId || !message || !role) {
+    return res.status(400).json({ error: 'sessionId, message, and role required.' });
+  }
+
+  if (typeof message !== 'string' || message.trim().length === 0) {
+    return res.status(400).json({ error: 'Valid message text required.' });
+  }
+
+  const timestamp = new Date().toISOString();
+
+  if (!chatSessions.has(sessionId)) {
+    chatSessions.set(sessionId, []);
+  }
+
+  const session = chatSessions.get(sessionId);
+  session.push({ role, message: message.trim(), timestamp });
+
+  console.log(`\n[Chat Message — ${sessionId}]`);
+  console.log(`${role.toUpperCase()}: ${message.trim()}`);
+  console.log(`Session length: ${session.length} messages`);
+
+  const response = generateChatResponse(message.trim());
+
+  return res.status(200).json({
+    success: true,
+    response: {
+      role: 'bot',
+      text: response,
+      timestamp: new Date().toISOString(),
+    },
+  });
+});
+
+app.get('/api/chat/history/:sessionId', (req, res) => {
+  const { sessionId } = req.params;
+  const history = chatSessions.get(sessionId) || [];
+
+  return res.status(200).json({
+    success: true,
+    sessionId,
+    messages: history,
+  });
+});
+
+function generateChatResponse(input) {
+  const lower = input.toLowerCase().trim();
+
+  const responses = {
+    eventStaff: {
+      keywords: ['event', 'staff', 'need', 'hire'],
+      response: "We'd love to help! Could you tell me the event date, location, and approximate guest count? An Account Executive will follow up within 2 hours.",
+    },
+    sameDay: {
+      keywords: ['same-day', 'today', 'urgent', 'emergency', 'hours'],
+      response: 'Yes! We offer emergency staffing with placement available within hours. Call 1-800-673-0010 for immediate assistance.',
+    },
+    serviceAreas: {
+      keywords: ['area', 'location', 'region', 'where', 'serve'],
+      response: 'We currently serve NYC, Long Island, New Jersey, and South Florida (Palm Beach to Miami). Planning an event in one of these areas?',
+    },
+  };
+
+  for (const [key, config] of Object.entries(responses)) {
+    const matches = config.keywords.some((kw) => lower.includes(kw) || kw.includes(lower));
+    if (matches) return config.response;
+  }
+
+  return 'Thank you for your message! An Account Executive will respond shortly. For immediate assistance, call 1-800-673-0010.';
+}
+
 // Single page app fallback
 app.use((req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));

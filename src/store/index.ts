@@ -8,8 +8,6 @@ import { subscribeWithSelector } from "zustand/middleware";
 import { useShallow } from "zustand/react/shallow";
 import type {
   AppState,
-  ChatMessage,
-  Toast,
   StaffRequestFormData,
   ContactFormData,
   StaffResult,
@@ -21,11 +19,11 @@ import type {
 // ============================================
 
 const CALCULATOR_PRESETS: Record<string, CalculatorPreset> = {
-  "Cocktail Reception": { serversPerGuest: 25, bartendersPerGuest: 50, kitchenPerGuest: 40 },
-  "Sit-Down Dinner": { serversPerGuest: 15, bartendersPerGuest: 50, kitchenPerGuest: 30 },
-  "Buffet / Station": { serversPerGuest: 25, bartendersPerGuest: 50, kitchenPerGuest: 25 },
-  "Corporate Event": { serversPerGuest: 20, bartendersPerGuest: 40, kitchenPerGuest: 35 },
-  "Wedding Reception": { serversPerGuest: 15, bartendersPerGuest: 40, kitchenPerGuest: 25 },
+  "Cocktail Reception": { name: "Cocktail Reception", serversPerGuest: 25, bartendersPerGuest: 50, kitchenPerGuest: 40 },
+  "Sit-Down Dinner": { name: "Sit-Down Dinner", serversPerGuest: 15, bartendersPerGuest: 50, kitchenPerGuest: 30 },
+  "Buffet / Station": { name: "Buffet / Station", serversPerGuest: 25, bartendersPerGuest: 50, kitchenPerGuest: 25 },
+  "Corporate Event": { name: "Corporate Event", serversPerGuest: 20, bartendersPerGuest: 40, kitchenPerGuest: 35 },
+  "Wedding Reception": { name: "Wedding Reception", serversPerGuest: 15, bartendersPerGuest: 40, kitchenPerGuest: 25 },
 };
 
 const DEFAULT_STAFF_REQUEST_FORM: StaffRequestFormData & { currentStep: number } = {
@@ -75,6 +73,7 @@ export const useStore = create<AppState>()(
       activeSection: null,
       showBackToTop: false,
       exitIntentShown: false,
+      isDarkMode: true, // Default to dark mode
     },
 
     // Chat State
@@ -163,6 +162,11 @@ export const useStore = create<AppState>()(
     setExitIntentShown: (shown) =>
       set((state) => ({
         ui: { ...state.ui, exitIntentShown: shown },
+      })),
+
+    toggleDarkMode: () =>
+      set((state) => ({
+        ui: { ...state.ui, isDarkMode: !state.ui.isDarkMode },
       })),
 
     // ==========================================

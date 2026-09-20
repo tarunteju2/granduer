@@ -5,8 +5,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 export default function About() {
   return (
-    <section id="about" className="section-chapter relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section id="about" className="section-chapter relative overflow-hidden">
+      <div className="shell">
         {/* Rule */}
         <div className="editorial-rule mb-24" />
 
@@ -26,7 +26,7 @@ export default function About() {
           {/* Left - headline */}
           <div className="lg:col-span-5">
             <TextReveal delay={0.1}>
-              <h2 className="font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight">
+              <h2 className="text-display-2 font-serif font-light leading-none uppercase tracking-tight">
                 <RevealLine>The Gold</RevealLine>
                 <RevealLine>Standard</RevealLine>
                 <RevealLine isGold className="mt-1">

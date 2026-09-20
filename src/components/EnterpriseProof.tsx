@@ -5,8 +5,8 @@ import TextReveal, { RevealLine } from "@/components/TextReveal";
 
 export default function EnterpriseProof() {
   return (
-    <section className="relative overflow-hidden py-36">
-      <div className="mx-auto max-w-300 px-8">
+    <section className="relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-24" />
 
         <div className="grid gap-16 lg:grid-cols-12 lg:items-start">
@@ -22,7 +22,7 @@ export default function EnterpriseProof() {
             </motion.p>
 
             <TextReveal delay={0.1}>
-              <h2 className="font-serif text-[clamp(2.4rem,5vw,4.3rem)] font-light leading-none uppercase tracking-tight">
+              <h2 className="text-display-2 font-serif font-light leading-none uppercase tracking-tight">
                 <RevealLine>How Grandeur</RevealLine>
                 <RevealLine isGold className="mt-1">
                   Operates

@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   Calculator,
@@ -15,6 +16,9 @@ import {
   Sliders,
 } from "lucide-react";
 import AnimatedSelect from "@/components/AnimatedSelect";
+import { GlassCalendar } from "@/components/ui/glass-calendar";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { Slider } from "@/components/ui/slider-number-flow";
 import {
   type ServiceType,
   calculateRecommendedStaff,
@@ -67,12 +71,6 @@ export default function StaffCalculator() {
     setGuestCount(value);
   }, []);
 
-  const handleInputChange = useCallback((value: string) => {
-    const num = parseInt(value) || 0;
-    setGuestCount(num);
-    setSliderGuestCount(num);
-  }, []);
-
   // Calculate staff recommendations
   const results = useMemo<StaffResult[]>(() => {
     const staffRequirements = calculateRecommendedStaff(eventType, guestCount, needsSecurity);
@@ -97,8 +95,8 @@ export default function StaffCalculator() {
   }, [eventDate, eventType]);
 
   return (
-    <section className="relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section className="relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-24" />
 
         <motion.p
@@ -116,7 +114,7 @@ export default function StaffCalculator() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, duration: 0.8 }}
-          className="max-w-lg font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight mb-6"
+          className="text-display-2 max-w-lg font-serif font-light leading-none uppercase tracking-tight mb-6"
         >
           How Many Staff
           <br />
@@ -144,33 +142,23 @@ export default function StaffCalculator() {
           >
             {/* Guest Count with Slider */}
             <div>
-              <label className="block mb-4">
+              <div className="mb-4">
                 <span className="text-[10px] uppercase tracking-[0.3em] text-white/25 flex items-center gap-2">
                   <Users size={12} className="text-gold-400/40" strokeWidth={1.5} />
                   Number of Guests
                 </span>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min={1}
-                    max={10000}
-                    value={guestCount}
-                    onChange={(e) => handleInputChange(e.target.value)}
-                    className="w-full border-b border-white/8 bg-transparent px-0 py-4 text-[24px] text-white placeholder:text-white/20 focus:border-white/30 focus:outline-none transition-colors font-light"
-                  />
-                </div>
-              </label>
+              </div>
               {/* Slider */}
-              <div className="mt-4 relative">
-                <input
-                  type="range"
+              <div className="relative mt-4 pt-8">
+                <Slider
+                  value={[sliderGuestCount]}
+                  onValueChange={(value) => handleSliderChange(value[0] ?? 10)}
                   min={10}
                   max={1000}
-                  value={sliderGuestCount}
-                  onChange={(e) => handleSliderChange(parseInt(e.target.value))}
-                  className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer slider-gold"
+                  step={1}
+                  aria-label="Number of guests"
                 />
-                <div className="flex justify-between mt-2">
+                <div className="mt-2 flex justify-between">
                   <span className="text-[10px] text-white/25">10</span>
                   <span className="text-[10px] text-white/25">500+</span>
                 </div>
@@ -192,18 +180,20 @@ export default function StaffCalculator() {
             </label>
 
             {/* Event Date */}
-            <label className="block">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/25 flex items-center gap-2 mb-2">
+            <div>
+              <span className="mb-3 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/25">
                 <Calendar size={12} className="text-gold-400/40" strokeWidth={1.5} />
                 Event Date
               </span>
-              <input
-                type="date"
-                value={eventDate}
-                onChange={(e) => setEventDate(e.target.value)}
-                className="w-full border-b border-white/8 bg-transparent px-0 py-4 text-[14px] text-white focus:border-white/30 focus:outline-none transition-colors font-light"
+              <GlassCalendar
+                selectedDate={eventDate ? new Date(`${eventDate}T12:00:00`) : undefined}
+                onDateSelect={(date) => setEventDate(format(date, "yyyy-MM-dd"))}
+                className="max-w-full rounded-2xl p-4"
               />
-            </label>
+              <p className="mt-2 text-[11px] text-white/30">
+                Selected: {eventDate ? format(new Date(`${eventDate}T12:00:00`), "MMMM d, yyyy") : "Choose a date"}
+              </p>
+            </div>
 
             {/* Surge Warning */}
             {surgeInfo && surgeInfo.multiplier > 1 && (
@@ -327,57 +317,61 @@ export default function StaffCalculator() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="lg:col-span-7"
           >
-            {guestCount > 0 ? (
-              <>
-                {/* Staff Recommendations */}
-                <div className="flex items-center gap-4 mb-8">
-                  <Calculator size={16} className="text-gold-400/50" strokeWidth={1.5} />
-                  <span className="text-[11px] uppercase tracking-[0.3em] text-white/35">
-                    Recommended Staff: {totalStaff} Total
-                  </span>
-                </div>
+            <BorderBeam
+              size="md"
+              colorVariant="sunset"
+              theme="dark"
+              duration={3.2}
+              brightness={1.1}
+              strength={0.7}
+              className="rounded-2xl"
+            >
+              <div className="rounded-2xl border border-white/6 bg-[#151b1d]/55 p-6 sm:p-8">
+                {guestCount > 0 ? (
+                  <>
+                    {/* Staff Recommendations */}
+                    <div className="mb-8 flex items-center gap-4">
+                      <Calculator size={16} className="text-gold-400/50" strokeWidth={1.5} />
+                      <span className="text-[11px] uppercase tracking-[0.3em] text-white/35">
+                        Recommended Staff: {totalStaff} Total
+                      </span>
+                    </div>
 
-                <div className="space-y-0">
-                  {results.map((r, i) => {
-                    const Icon = r.icon;
-                    return (
-                      <motion.div
-                        key={r.role}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05, duration: 0.3 }}
-                        className="group flex items-center justify-between border-t border-white/6 py-6 px-2 last:border-b"
-                      >
-                        <div className="flex items-center gap-5">
-                          <Icon
-                            size={14}
-                            className="text-white/20"
-                            strokeWidth={1.5}
-                          />
-                          <span className="font-serif text-lg font-light text-white/60 uppercase tracking-wider">
-                            {r.role}
-                          </span>
-                        </div>
-                        <span className="font-serif text-3xl font-light text-gold-400/70">
-                          {r.count}
-                        </span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-24 text-center">
-                <Calculator
-                  size={36}
-                  className="text-white/12 mb-6"
-                  strokeWidth={1}
-                />
-                <p className="text-[13px] text-white/20 font-light">
-                  Enter your guest count to see recommendations
-                </p>
+                    <div className="space-y-0">
+                      {results.map((r, i) => {
+                        const Icon = r.icon;
+                        return (
+                          <motion.div
+                            key={r.role}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.05, duration: 0.3 }}
+                            className="group flex items-center justify-between border-t border-white/6 px-2 py-6 last:border-b"
+                          >
+                            <div className="flex items-center gap-5">
+                              <Icon size={14} className="text-white/20" strokeWidth={1.5} />
+                              <span className="font-serif text-lg font-light uppercase tracking-wider text-white/60">
+                                {r.role}
+                              </span>
+                            </div>
+                            <span className="font-serif text-3xl font-light text-gold-400/70">
+                              {r.count}
+                            </span>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <Calculator size={36} className="mb-6 text-white/12" strokeWidth={1} />
+                    <p className="text-[13px] font-light text-white/20">
+                      Enter your guest count to see recommendations
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
+            </BorderBeam>
           </motion.div>
         </div>
       </div>

@@ -80,7 +80,7 @@ export default function Preloader() {
               transition={{ delay: 0.6, duration: 0.6 }}
               className="mt-2 text-[10px] uppercase tracking-[0.35em] text-champagne-300/80 font-medium"
             >
-              Hospitality Staffing · Est. 1985
+              Hospitality Staffing · Est. 1994
             </motion.p>
 
             <div className="mt-10 w-48">

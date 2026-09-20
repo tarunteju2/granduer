@@ -3,8 +3,8 @@ import { Gift, ArrowRight } from "lucide-react";
 
 export default function ReferralCTA() {
   return (
-    <section className="relative py-24 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section className="relative overflow-hidden">
+      <div className="shell">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

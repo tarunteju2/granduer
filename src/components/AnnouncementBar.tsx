@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const ANNOUNCEMENTS = [
-  "Premium Hospitality Staffing. Serving NYC, NJ, Long Island & South Florida",
-  "40%+ Average Annual Growth. The Industry's Fastest Growing Staffing Firm",
-  "Trusted Since 1985. Hotels · Country Clubs · Yacht Clubs · Fortune 500",
+  "Hospitality staffing for NYC, New Jersey, Long Island, and South Florida",
+  "Trusted since 1994 by hotels, clubs, caterers, and event teams",
+  "Share your brief and receive next steps from our staffing team",
 ];
 
 export default function AnnouncementBar() {
@@ -22,7 +22,7 @@ export default function AnnouncementBar() {
   if (dismissed) return null;
 
   return (
-    <div className="relative z-51 flex items-center justify-center bg-neutral-800/96 border-b border-white/10 px-12 py-2.5">
+    <div className="relative z-[90] flex items-center justify-center bg-neutral-800/96 border-b border-white/10 px-12 py-2.5">
       <button
         onClick={() => setIndex((prev) => (prev - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length)}
         className="absolute left-4 text-white/45 hover:text-white/80 transition-colors"

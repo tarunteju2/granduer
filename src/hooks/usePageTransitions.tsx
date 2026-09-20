@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type TransitionType = "fade" | "slide" | "blur" | "scale" | "wipe";
 
 interface PageTransitionOptions {
   type?: TransitionType;
   duration?: number;
-  easing?: string;
+  easing?: [number, number, number, number];
 }
 
 interface TransitionState {
@@ -15,73 +16,56 @@ interface TransitionState {
 }
 
 /**
- * Hook for smooth page/section transitions.
- * Uses View Transitions API where available with fallbacks.
+ * Hook for smooth page/section transitions using framer-motion.
+ * Uses AnimatePresence for enter/exit animations.
  */
 export function usePageTransitions(options: PageTransitionOptions = {}) {
-  const { type = "fade", duration = 400, easing = "cubic-bezier(0.16, 1, 0.3, 1)" } = options;
+  const {
+    type = "fade",
+    duration = 0.4,
+  } = options;
+
   const [state, setState] = useState<TransitionState>({
     isTransitioning: false,
     progress: 0,
     direction: "in",
   });
-  const transitionRef = useRef<{
-    startTime: number;
-    rafId: number | null;
-    resolve: (() => void) | null;
-  }>({
-    startTime: 0,
-    rafId: null,
-    resolve: null,
-  });
 
   // Check for reduced motion preference
   const prefersReducedMotion = useRef(
-    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
 
   // Animate transition
   const animateTransition = useCallback(
-    (direction: "in" | "out") => {
+    async (direction: "in" | "out") => {
       if (prefersReducedMotion.current) {
-        setState({ isTransitioning: false, progress: direction === "out" ? 1 : 0, direction });
+        setState({
+          isTransitioning: false,
+          progress: direction === "out" ? 1 : 0,
+          direction
+        });
         return Promise.resolve();
       }
 
-      return new Promise<void>((resolve) => {
-        setState((prev) => ({ ...prev, isTransitioning: true, direction, progress: direction === "out" ? 0 : 1 }));
-        transitionRef.current.resolve = resolve;
-        transitionRef.current.startTime = performance.now();
+      setState((prev) => ({
+        ...prev,
+        isTransitioning: true,
+        direction,
+        progress: direction === "out" ? 0 : 1
+      }));
 
-        const animate = (timestamp: number) => {
-          const elapsed = timestamp - transitionRef.current.startTime;
-          const rawProgress = Math.min(elapsed / duration, 1);
-
-          // Ease function
-          const easedProgress = direction === "out" ? 1 - rawProgress : rawProgress;
-
-          setState((prev) => ({
-            ...prev,
-            progress: easedProgress,
-          }));
-
-          if (rawProgress < 1) {
-            transitionRef.current.rafId = requestAnimationFrame(animate);
-          } else {
-            setState((prev) => ({ ...prev, isTransitioning: false }));
-            if (transitionRef.current.resolve) {
-              transitionRef.current.resolve();
-              transitionRef.current.resolve = null;
-            }
-            resolve();
-          }
-        };
-
-        if (transitionRef.current.rafId !== null) {
-          cancelAnimationFrame(transitionRef.current.rafId);
-        }
-        transitionRef.current.rafId = requestAnimationFrame(animate);
+      // Wait for animation to complete
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, duration * 1000);
       });
+
+      setState((prev) => ({
+        ...prev,
+        isTransitioning: false,
+        progress: direction === "out" ? 1 : 0
+      }));
     },
     [duration]
   );
@@ -96,57 +80,57 @@ export function usePageTransitions(options: PageTransitionOptions = {}) {
     [animateTransition]
   );
 
-  // Apply CSS transition styles
+  // Get variant based on transition type
+  const getVariant = useCallback(
+    (direction: "in" | "out") => {
+      switch (type) {
+        case "fade":
+          return {
+            initial: { opacity: direction === "out" ? 1 : 0 },
+            animate: { opacity: direction === "out" ? 0 : 1 },
+          };
+        case "slide":
+          return {
+            initial: { opacity: direction === "out" ? 1 : 0, y: direction === "out" ? 0 : 30 },
+            animate: { opacity: direction === "out" ? 0 : 1, y: direction === "out" ? -30 : 0 },
+          };
+        case "blur":
+          return {
+            initial: { opacity: direction === "out" ? 1 : 0, filter: direction === "out" ? "blur(0px)" : "blur(12px)" },
+            animate: { opacity: direction === "out" ? 0 : 1, filter: direction === "out" ? "blur(12px)" : "blur(0px)" },
+          };
+        case "scale":
+          return {
+            initial: { opacity: direction === "out" ? 1 : 0, scale: direction === "out" ? 1 : 0.92 },
+            animate: { opacity: direction === "out" ? 0 : 1, scale: direction === "out" ? 0.92 : 1 },
+          };
+        case "wipe":
+          return {
+            initial: {
+              clipPath: direction === "out" ? "inset(0 0% 0 0)" : "inset(0 100% 0 0)"
+            },
+            animate: {
+              clipPath: direction === "out" ? "inset(0 100% 0 0)" : "inset(0 0% 0 0)"
+            },
+          };
+        default:
+          return {
+            initial: { opacity: direction === "out" ? 1 : 0 },
+            animate: { opacity: direction === "out" ? 0 : 1 },
+          };
+      }
+    },
+    [type]
+  );
+
+  // Apply transition styles
   const getTransitionStyle = useCallback(
     (elementStyle: React.CSSProperties = {}): React.CSSProperties => {
       if (prefersReducedMotion.current) return elementStyle;
 
-      const baseTransition = {
-        transition: `all ${duration}ms ${easing}`,
-      };
-
-      switch (type) {
-        case "fade":
-          return {
-            ...elementStyle,
-            ...baseTransition,
-            opacity: state.progress,
-          };
-        case "slide":
-          return {
-            ...elementStyle,
-            ...baseTransition,
-            opacity: state.progress,
-            transform: `translateY(${(1 - state.progress) * 30}px)`,
-          };
-        case "blur":
-          return {
-            ...elementStyle,
-            ...baseTransition,
-            opacity: state.progress,
-            filter: `blur(${(1 - state.progress) * 12}px)`,
-          };
-        case "scale":
-          return {
-            ...elementStyle,
-            ...baseTransition,
-            opacity: state.progress,
-            transform: `scale(${0.92 + state.progress * 0.08})`,
-          };
-        case "wipe":
-          return {
-            ...elementStyle,
-            ...baseTransition,
-            opacity: 1,
-            clipPath: state.direction === "out"
-              ? `inset(0 ${(1 - state.progress) * 100}% 0 0)`
-              : `inset(0 ${state.progress * 100}% 0 0)`,
-          };
-        default:
-          return elementStyle;
-      }
+      return elementStyle;
     },
-    [type, duration, easing, state.progress, state.direction]
+    []
   );
 
   // Smooth scroll handler
@@ -165,39 +149,24 @@ export function usePageTransitions(options: PageTransitionOptions = {}) {
       e.preventDefault();
 
       // Check for View Transitions API
-      if (typeof document.startViewTransition === "function" && !prefersReducedMotion.current) {
+      if (
+        typeof document.startViewTransition === "function" &&
+        !prefersReducedMotion.current
+      ) {
         document.startViewTransition(() => {
           section.scrollIntoView({ behavior: "instant", block: "start" });
         });
       } else {
-        // Fallback: fade transition
-        const main = document.querySelector("main");
-        if (!main) {
-          section.scrollIntoView({ behavior: prefersReducedMotion.current ? "auto" : "smooth", block: "start" });
-          return;
-        }
-
-        main.style.transition = `opacity ${duration / 2}ms ${easing}`;
-        main.style.opacity = "0";
-
-        setTimeout(() => {
-          section.scrollIntoView({ behavior: "instant", block: "start" });
-          main.style.opacity = "1";
-        }, duration / 2);
+        // Fallback: smooth scroll
+        section.scrollIntoView({
+          behavior: prefersReducedMotion.current ? "auto" : "smooth",
+          block: "start"
+        });
       }
     };
 
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
-  }, [duration, easing]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (transitionRef.current.rafId !== null) {
-        cancelAnimationFrame(transitionRef.current.rafId);
-      }
-    };
   }, []);
 
   return {
@@ -205,6 +174,7 @@ export function usePageTransitions(options: PageTransitionOptions = {}) {
     transitionTo,
     getTransitionStyle,
     animateTransition,
+    getVariant,
   };
 }
 
@@ -216,7 +186,6 @@ interface SectionTransitionProps {
   className?: string;
   id?: string;
   isActive?: boolean;
-  transitionType?: TransitionType;
 }
 
 export function SectionTransition({
@@ -224,22 +193,26 @@ export function SectionTransition({
   className = "",
   id,
   isActive = true,
-  transitionType = "fade",
 }: SectionTransitionProps) {
-  const { state, getTransitionStyle } = usePageTransitions({ type: transitionType });
-
   return (
-    <section
+    <motion.section
       id={id}
       className={className}
-      style={{
-        ...getTransitionStyle(),
-        willChange: state.isTransitioning ? "transform, opacity, filter" : "auto",
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-10%" }}
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+        },
       }}
       data-active={isActive}
     >
       {children}
-    </section>
+    </motion.section>
   );
 }
 
@@ -270,4 +243,21 @@ export function useScrollTransition(threshold = 0.5) {
   }, [threshold]);
 
   return activeSection;
+}
+
+/**
+ * AnimatePresence wrapper for page-level transitions
+ */
+export function PageTransition({
+  children,
+  mode = "wait",
+}: {
+  children: React.ReactNode;
+  mode?: "wait" | "popLayout" | "sync";
+}) {
+  return (
+    <AnimatePresence mode={mode}>
+      {children}
+    </AnimatePresence>
+  );
 }

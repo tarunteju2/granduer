@@ -1,63 +1,103 @@
-import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { SERVICES } from "@/data/content";
-import ScrollReveal from "@/components/ScrollReveal";
+import { REVEAL_VIEWPORT } from "@/lib/motion";
 
-const SERVICE_IMAGES = [
-  "/images/culinary-operations.jpeg",
-  "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=85",
-  "/images/pine-hollow-club.webp",
-  "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=85",
-  "/images/pine-hollow-club.webp",
-];
+/**
+ * Services — indexed roster rows (DESIGN.md directive 2).
+ * Full-width hairline rows with a monospace index, Outfit uppercase label,
+ * Fraunces service name, muted one-liner. Hover: terracotta arrow slides in
+ * and the row surface warms to slate — transform/opacity only.
+ */
 
 export default function Services() {
+  const reduced = useReducedMotion();
+
   return (
-    <section id="services" className="section-chapter relative overflow-hidden py-36">
-      <div className="mx-auto max-w-350 px-6 sm:px-10 lg:px-16 xl:px-20">
+    <section id="services" className="section-chapter relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-20" />
-        <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr] lg:gap-24">
+
+        <div className="grid gap-14 lg:grid-cols-[.72fr_1.28fr] lg:gap-24">
           <div className="lg:sticky lg:top-32 lg:self-start">
-            <motion.p initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .7 }} className="editorial-label mb-7">
-              The roster
-            </motion.p>
-            <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: .08, duration: .8 }} className="max-w-lg font-legacy-serif text-[clamp(3rem,5.6vw,6.2rem)] font-light leading-[.88] tracking-[-.055em] text-[#f5f1e9]">
-              The right person changes <em className="text-[#e2a891]">everything.</em>
+            <motion.h2
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={REVEAL_VIEWPORT}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="text-display-2 max-w-lg font-legacy-serif font-light leading-[0.9] tracking-[-0.05em] text-[#f5f1e9]"
+            >
+              Staff who make service feel <em className="font-normal italic text-[#e2a891]">effortless.</em>
             </motion.h2>
-            <motion.p initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: .2, duration: .7 }} className="mt-9 max-w-sm text-[15px] leading-[1.9] text-white/52">
-              One trusted partner for the people behind unforgettable hospitality. Every role is briefed, vetted, and ready for your house standards.
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={REVEAL_VIEWPORT}
+              transition={{ delay: reduced ? 0 : 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-9 max-w-sm text-[15px] leading-[1.9] text-[#849093]"
+            >
+              Briefed, vetted, and trained to your house standards across front-of-house, kitchens, hotels, and events.
             </motion.p>
-            <a href="#request-staff" className="group mt-10 inline-flex items-center gap-3 border-b border-[#e2a891]/50 pb-2 text-[10px] uppercase tracking-[.28em] text-[#f1bba6] transition-colors hover:text-white">
+            <motion.a
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={REVEAL_VIEWPORT}
+              transition={{ delay: reduced ? 0 : 0.24, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              href="#request-staff"
+              className="group mt-10 inline-flex items-center gap-3 border-b border-[#e2a891]/50 pb-2 text-[10px] font-medium uppercase tracking-[.28em] text-[#e2a891] transition-colors duration-300 hover:text-[#f5f1e9]"
+            >
               Build your team
-              <ArrowUpRight size={15} strokeWidth={1.4} className="transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </a>
+              <span
+                aria-hidden="true"
+                className="text-[#e2a891] transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5"
+              >
+                →
+              </span>
+            </motion.a>
           </div>
 
-          <div className="divide-y divide-white/12 border-y border-white/12">
-            {SERVICES.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <ScrollReveal key={service.id} as="article" delay={index * 70}>
-                  <article className="service-row group relative grid gap-6 py-8 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-8">
-                  <div className="flex items-center gap-4 sm:block">
-                    <span className="font-mono text-[10px] text-[#e2a891]">0{index + 1}</span>
-                    <Icon size={18} strokeWidth={1.2} className="text-white/35 transition-colors duration-500 group-hover:text-[#e2a891] sm:mt-5" />
-                  </div>
+          {/* Indexed roster rows */}
+          <div>
+            {SERVICES.map((service, index) => (
+              <motion.article
+                key={service.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={REVEAL_VIEWPORT}
+                transition={{ delay: reduced ? 0 : index * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                className="group service-row relative border-t border-[rgba(245,241,233,0.12)] transition-colors duration-[250ms] last:border-b hover:bg-[rgba(21,27,29,0.6)]"
+              >
+                <a
+                  href="#request-staff"
+                  aria-label={`Inquire about ${service.title}`}
+                  className="grid grid-cols-1 gap-3 px-1 py-10 sm:grid-cols-[3.5rem_1fr_auto] sm:items-center sm:gap-8"
+                >
+                  {/* Monospace index */}
+                  <span className="font-mono text-[11px] tracking-[0.1em] text-[#849093] transition-colors duration-300 group-hover:text-[#e2a891]">
+                    {String(index + 1).padStart(2, "0")} /
+                  </span>
+
                   <div>
-                    <p className="mb-2 text-[9px] uppercase tracking-[.26em] text-white/35">{service.shortTitle}</p>
-                    <h3 className="font-legacy-serif text-2xl font-light tracking-[-.02em] text-white transition-colors duration-500 group-hover:text-[#f1bba6] sm:text-3xl">{service.title}</h3>
-                    <p className="mt-3 max-w-xl text-[13px] leading-[1.8] text-white/45 transition-colors duration-500 group-hover:text-white/65">{service.description}</p>
+                    <p className="mb-2 text-[9px] font-medium uppercase tracking-[.26em] text-[#849093]">
+                      {service.shortTitle}
+                    </p>
+                    <h3 className="font-legacy-serif text-[26px] font-light leading-[1.1] tracking-[-0.02em] text-[#f5f1e9] transition-colors duration-300 group-hover:text-[#e2a891] sm:text-[28px]">
+                      {service.title}
+                    </h3>
+                    <p className="mt-3 max-w-xl text-[13px] leading-[1.8] text-[#849093]">
+                      {service.description}
+                    </p>
                   </div>
-                  <a href="#request-staff" aria-label={`Inquire about ${service.title}`} className="flex h-11 w-11 items-center justify-center border border-white/15 text-white/50 transition-all duration-500 group-hover:border-[#e2a891]/70 group-hover:bg-[#e2a891] group-hover:text-[#101416] sm:self-center">
-                    <ArrowUpRight size={17} strokeWidth={1.3} />
-                  </a>
-                  <div className="pointer-events-none absolute right-20 top-1/2 hidden h-24 w-36 -translate-y-1/2 translate-x-5 overflow-hidden opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 lg:block">
-                    <img src={SERVICE_IMAGES[index]} alt="" className="h-full w-full object-cover grayscale-[.25]" />
-                  </div>
-                  </article>
-                </ScrollReveal>
-              );
-            })}
+
+                  {/* Terracotta arrow — slides in on hover (x -8 -> 0, opacity only) */}
+                  <span
+                    aria-hidden="true"
+                    className="hidden text-[18px] leading-none text-[#e2a891] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 -translate-x-2 sm:block"
+                  >
+                    →
+                  </span>
+                </a>
+              </motion.article>
+            ))}
           </div>
         </div>
       </div>

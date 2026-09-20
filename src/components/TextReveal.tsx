@@ -1,8 +1,5 @@
-import { useEffect, useRef, type ReactNode } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { useRef, type ReactNode } from "react";
+import { motion, useInView, useReducedMotion, type Variants } from "framer-motion";
 
 interface TextRevealProps {
   children: ReactNode;
@@ -13,49 +10,45 @@ interface TextRevealProps {
   as?: any;
 }
 
+/**
+ * Text reveal component using framer-motion whileInView.
+ * Animates .reveal-word and .reveal-line elements on scroll.
+ */
 export default function TextReveal({
   children,
   className = "",
   delay = 0,
   stagger = 0.06,
-  triggerHook = "top 88%",
   as: Component = "div",
 }: TextRevealProps) {
-  const elRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  // Observe the real container: the motion wrapper uses display:contents, so
+  // whileInView's IntersectionObserver would never see it fire.
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-12%" });
 
-  useEffect(() => {
-    const el = elRef.current;
-    if (!el) return;
-
-    const targets = el.querySelectorAll(".reveal-word, .reveal-line");
-    if (!targets.length) return;
-
-    gsap.set(targets, { y: "115%", opacity: 0 });
-
-    const ctx = gsap.context(() => {
-      gsap.to(targets, {
-        y: "0%",
-        opacity: 1,
-        duration: 1.1,
-        ease: "power3.out",
-        stagger: stagger,
-        delay: delay,
-        scrollTrigger: {
-          trigger: el,
-          start: triggerHook,
-          once: true,
-        },
-      });
-    }, el);
-
-    return () => ctx.revert();
-  }, [delay, stagger, triggerHook]);
+  const containerVariants: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: reduced ? 0 : stagger,
+        delayChildren: reduced ? 0 : delay,
+      },
+    },
+  };
 
   const Comp = Component;
 
   return (
-    <Comp ref={elRef} className={`reveal-container ${className}`}>
-      {children}
+    <Comp ref={ref} className={`reveal-container ${className}`}>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        style={{ display: "contents" }}
+      >
+        {children}
+      </motion.div>
     </Comp>
   );
 }
@@ -72,15 +65,90 @@ export function RevealLine({
   className?: string;
   isGold?: boolean;
 }) {
+  const reduced = useReducedMotion();
   return (
     <span className={`block overflow-hidden pb-1 ${className}`}>
-      <span
+      <motion.span
+        variants={{
+          hidden: reduced ? { y: "0%", opacity: 0 } : { y: "115%", opacity: 0 },
+          visible: {
+            y: "0%",
+            opacity: 1,
+            transition: reduced
+              ? { duration: 0 }
+              : { duration: 1.1, ease: [0.16, 1, 0.3, 1] },
+          },
+        }}
         className={`reveal-line block will-change-transform ${
           isGold ? "italic text-gold-400 font-normal" : ""
         }`}
       >
         {children}
-      </span>
+      </motion.span>
     </span>
+  );
+}
+
+/**
+ * Word-by-word reveal animation variants
+ */
+export const wordRevealVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.03,
+    },
+  },
+};
+
+export const wordVariants: Variants = {
+  hidden: {
+    y: "100%",
+    opacity: 0,
+  },
+  visible: {
+    y: "0%",
+    opacity: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+/**
+ * Split text into words and wrap each in a motion span for animation
+ */
+export function SplitWords({
+  text,
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) {
+  const words = text.split(" ");
+
+  return (
+    <motion.span
+      className={className}
+      variants={wordRevealVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-10%" }}
+      style={{ display: "inline" }}
+    >
+      {words.map((word, i) => (
+        <span key={i} className="inline-block overflow-hidden">
+          <motion.span
+            className="inline-block"
+            variants={wordVariants}
+            style={{ display: "inline-block" }}
+          >
+            {word}
+            {i < words.length - 1 ? " " : ""}
+          </motion.span>
+        </span>
+      ))}
+    </motion.span>
   );
 }

@@ -147,8 +147,8 @@ export default function JobApplicationPortal() {
   };
 
   return (
-    <section id="careers" className="relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section id="careers" className="relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-24" />
 
         <motion.p
@@ -166,7 +166,7 @@ export default function JobApplicationPortal() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, duration: 0.8 }}
-          className="max-w-lg font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight mb-6"
+          className="text-display-2 max-w-lg font-serif font-light leading-none uppercase tracking-tight mb-6"
         >
           Join Our
           <br />

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://www.granduerstaffing.com/sitemap.xml
+Sitemap: https://www.grandeurstaffing.com/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1
@@ -43,4 +43,4 @@ Disallow: /
 
 # Specific directives for different crawlers
 User-agent: *
-Sitemap: https://www.granduerstaffing.com/sitemap.xml
+Sitemap: https://www.grandeurstaffing.com/sitemap.xml

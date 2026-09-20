@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Calendar,
   Users,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { SERVICES, COMPANY } from "@/data/content";
 import AnimatedSelect from "@/components/AnimatedSelect";
+import { GlassCalendar } from "@/components/ui/glass-calendar";
 
 interface FormData {
   /* Step 1 */
@@ -36,6 +38,7 @@ interface FormData {
 const EVENT_TYPES = [
   "Wedding Reception",
   "Corporate Gala",
+  "Corporate Event",
   "Private Dinner",
   "Charity Event",
   "Trade Show",
@@ -68,7 +71,7 @@ const empty: FormData = {
 };
 
 const inputClass =
-  "w-full border-b border-white/8 bg-transparent px-0 py-4 text-[14px] text-white placeholder:text-white/20 focus:border-white/30 focus:outline-none transition-colors font-light";
+  "w-full border-0 border-b border-[rgba(245,241,233,0.25)] bg-transparent px-0 py-4 text-[14px] text-[#f5f1e9] placeholder:text-[#849093] focus:!border-[#e2a891] focus-visible:!border-[#e2a891] focus:outline-none focus:ring-0 transition-colors duration-300 font-light";
 
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
@@ -76,7 +79,14 @@ const slideVariants = {
   exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 };
 
+const reducedSlideVariants = {
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
 export default function StaffRequestForm() {
+  const reduced = useReducedMotion();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [data, setData] = useState<FormData>(empty);
@@ -232,31 +242,22 @@ export default function StaffRequestForm() {
   };
 
   return (
-    <section id="request-staff" className="relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section id="request-staff" className="relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-24" />
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="editorial-label mb-8"
-        >
-          Request Staff
-        </motion.p>
 
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, duration: 0.8 }}
-          className="max-w-lg font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight mb-20"
+          className="text-display-2 mb-8 max-w-lg font-serif font-light leading-[.92] tracking-[-.05em] text-[#f5f1e9]"
         >
-          Book Your
-          <br />
-          <span className="italic text-gold-400">Event Staff</span>
+          Request event staff
         </motion.h2>
+        <p className="mb-16 max-w-xl text-[14px] leading-relaxed text-white/72">
+          Share your event details. We will confirm availability and next steps with you.
+        </p>
 
         {submitted ? (
           <motion.div
@@ -291,7 +292,7 @@ export default function StaffRequestForm() {
             </button>
           </motion.div>
         ) : (
-          <div className="grid gap-16 lg:grid-cols-12">
+          <div className="grid gap-16 lg:grid-cols-12 lg:items-start">
             {/* Step indicators */}
             <div className="lg:col-span-4">
               <div className="space-y-1">
@@ -361,16 +362,41 @@ export default function StaffRequestForm() {
             </div>
 
             {/* Form steps */}
-            <form
-              onSubmit={handleSubmit}
-              className="lg:col-span-8 relative min-h-[380px]"
-            >
+            <div className="lg:col-span-8">
+              <form
+                onSubmit={handleSubmit}
+                onFocusCapture={(event) => {
+                  const target = event.target;
+                  if (
+                    target instanceof HTMLInputElement ||
+                    target instanceof HTMLTextAreaElement ||
+                    target instanceof HTMLSelectElement ||
+                    (target instanceof HTMLButtonElement && target.getAttribute("aria-haspopup") === "listbox")
+                  ) {
+                    target.style.borderColor = "#e2a891";
+                    target.style.borderBottomColor = "#e2a891";
+                  }
+                }}
+                onBlurCapture={(event) => {
+                  const target = event.target;
+                  if (
+                    target instanceof HTMLInputElement ||
+                    target instanceof HTMLTextAreaElement ||
+                    target instanceof HTMLSelectElement ||
+                    (target instanceof HTMLButtonElement && target.getAttribute("aria-haspopup") === "listbox")
+                  ) {
+                    target.style.removeProperty("border-color");
+                    target.style.removeProperty("border-bottom-color");
+                  }
+                }}
+                className="relative min-h-[380px] border border-[rgba(245,241,233,0.12)] bg-[#151b1d] p-6 sm:p-8"
+              >
               <AnimatePresence mode="wait" custom={dir}>
                 {step === 0 && (
                   <motion.div
                     key="step-0"
                     custom={dir}
-                    variants={slideVariants}
+                    variants={reduced ? reducedSlideVariants : slideVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
@@ -391,18 +417,19 @@ export default function StaffRequestForm() {
                       />
                     </label>
                     <div className="grid gap-x-12 sm:grid-cols-2">
-                      <label className="block">
-                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">
+                      <div>
+                        <span className="mb-3 block text-[10px] uppercase tracking-[0.3em] text-white/25">
                           Event Date
                         </span>
-                        <input
-                          type="date"
-                          required
-                          value={data.eventDate}
-                          onChange={(e) => set("eventDate", e.target.value)}
-                          className={inputClass}
+                        <GlassCalendar
+                          selectedDate={data.eventDate ? new Date(`${data.eventDate}T12:00:00`) : undefined}
+                          onDateSelect={(date) => set("eventDate", format(date, "yyyy-MM-dd"))}
+                          className="max-w-full rounded-2xl p-4"
                         />
-                      </label>
+                        <p className="mt-2 text-[11px] text-white/30">
+                          Selected: {data.eventDate ? format(new Date(`${data.eventDate}T12:00:00`), "MMMM d, yyyy") : "Choose a date"}
+                        </p>
+                      </div>
                       <label className="block">
                         <span className="text-[10px] uppercase tracking-[0.3em] text-white/25">
                           Start Time
@@ -436,7 +463,7 @@ export default function StaffRequestForm() {
                   <motion.div
                     key="step-1"
                     custom={dir}
-                    variants={slideVariants}
+                    variants={reduced ? reducedSlideVariants : slideVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
@@ -501,7 +528,7 @@ export default function StaffRequestForm() {
                   <motion.div
                     key="step-2"
                     custom={dir}
-                    variants={slideVariants}
+                    variants={reduced ? reducedSlideVariants : slideVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
@@ -553,7 +580,7 @@ export default function StaffRequestForm() {
                   <motion.div
                     key="step-3"
                     custom={dir}
-                    variants={slideVariants}
+                    variants={reduced ? reducedSlideVariants : slideVariants}
                     initial="enter"
                     animate="center"
                     exit="exit"
@@ -649,14 +676,15 @@ export default function StaffRequestForm() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="group inline-flex items-center gap-3 border border-gold-400/40 bg-gold-400/10 px-10 py-4 text-[11px] font-medium uppercase tracking-[0.3em] text-gold-400 hover:bg-gold-400 hover:text-black disabled:opacity-50 transition-all duration-500 shadow-[0_0_15px_rgba(212,175,55,0.15)]"
+                    className="group inline-flex items-center gap-3 border border-[rgba(245,241,233,0.45)] bg-transparent px-10 py-4 text-[11px] font-medium uppercase tracking-[0.3em] text-[#f5f1e9] transition-colors duration-300 hover:border-[#e2a891] hover:text-[#e2a891] disabled:opacity-50"
                   >
                     <Send size={14} strokeWidth={1.5} className={loading ? "animate-spin" : ""} />
                     {loading ? "Registering..." : "Submit Request"}
                   </button>
                 )}
               </div>
-            </form>
+              </form>
+            </div>
           </div>
         )}
       </div>

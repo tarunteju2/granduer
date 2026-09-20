@@ -416,7 +416,7 @@ export default function ThreeHeroScene() {
         particleGeometry.attributes.position.needsUpdate = true;
 
         // Animate connecting lines
-        lineSegments.forEach((line, i) => {
+        lineSegments.forEach((line) => {
           const { phase, speed } = line.userData;
           const opacity = 0.05 + 0.05 * Math.sin(elapsed * speed + phase);
           (line.material as THREE.LineBasicMaterial).opacity = opacity;
@@ -516,7 +516,11 @@ export default function ThreeHeroScene() {
 
       lineSegments.forEach(line => {
         line.geometry.dispose();
-        line.material.dispose();
+        if (Array.isArray(line.material)) {
+          line.material.forEach(m => m.dispose());
+        } else {
+          line.material.dispose();
+        }
       });
 
       architecture.traverse((object) => {

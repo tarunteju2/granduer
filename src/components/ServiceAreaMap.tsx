@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Building2, Clock3, MapPin, Route } from "lucide-react";
 import { OFFICES, COMPANY } from "@/data/content";
+import { Map, MapMarker, MarkerContent, MarkerLabel } from "@/components/ui/mapcn-marker-label";
 
 const REGIONS = [
   {
     name: "New York City",
-    coords: { cx: "72%", cy: "22%" },
+    coords: { lng: -74.006, lat: 40.7128 },
     detail: "Manhattan, Brooklyn, Queens, Bronx, Staten Island",
     market: "Flagship urban coverage",
     response: "Rapid dispatch",
@@ -13,7 +14,7 @@ const REGIONS = [
   },
   {
     name: "Long Island",
-    coords: { cx: "80%", cy: "25%" },
+    coords: { lng: -73.1958, lat: 40.7891 },
     detail: "Nassau & Suffolk Counties",
     market: "Banquet-heavy territory",
     response: "Weekend surge crews",
@@ -21,7 +22,7 @@ const REGIONS = [
   },
   {
     name: "New Jersey",
-    coords: { cx: "67%", cy: "28%" },
+    coords: { lng: -74.4057, lat: 40.0583 },
     detail: "Northern & Central New Jersey",
     market: "Multi-property support",
     response: "Cross-market staffing",
@@ -29,7 +30,7 @@ const REGIONS = [
   },
   {
     name: "South Florida",
-    coords: { cx: "65%", cy: "82%" },
+    coords: { lng: -80.1918, lat: 25.7617 },
     detail: "Palm Beach, Fort Lauderdale, Miami",
     market: "Luxury coastal coverage",
     response: "Seasonal scale-up ready",
@@ -57,8 +58,8 @@ const COVERAGE_METRICS = [
 
 export default function ServiceAreaMap() {
   return (
-    <section className="relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section className="relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-24" />
 
         <motion.p
@@ -76,7 +77,7 @@ export default function ServiceAreaMap() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, duration: 0.8 }}
-          className="max-w-3xl font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight mb-8"
+          className="text-display-2 max-w-3xl font-serif font-light leading-none uppercase tracking-tight mb-8"
         >
           Where We
           <br />
@@ -102,85 +103,61 @@ export default function ServiceAreaMap() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="lg:col-span-7 relative"
           >
-            <div className="relative aspect-4/3 overflow-hidden border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(196,163,90,0.16),transparent_32%),radial-gradient(circle_at_82%_20%,rgba(255,255,255,0.08),transparent_28%),radial-gradient(circle_at_50%_100%,rgba(196,163,90,0.08),transparent_38%)]" />
-
-              <div className="absolute inset-0 opacity-[0.05]">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    key={`h-${i}`}
-                    className="absolute left-0 right-0 h-px bg-white"
-                    style={{ top: `${(i + 1) * 11.1}%` }}
-                  />
-                ))}
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    key={`v-${i}`}
-                    className="absolute top-0 bottom-0 w-px bg-white"
-                    style={{ left: `${(i + 1) * 11.1}%` }}
-                  />
-                ))}
-              </div>
-
-              <svg
-                viewBox="0 0 400 300"
-                className="absolute inset-0 w-full h-full"
-                fill="none"
+            <div className="relative aspect-4/3 overflow-hidden border border-white/8">
+              <Map
+                center={[-78, 32.5]}
+                zoom={4.2}
+                theme="dark"
+                loading={false}
+                styles={{
+                  dark: {
+                    version: 8,
+                    sources: {
+                      stamen: {
+                        type: "raster",
+                        tiles: ["https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png"],
+                        tileSize: 256,
+                        attribution: "&copy; Stadia Maps &copy; OpenMapTiles &copy; OpenStreetMap",
+                        maxzoom: 19
+                      }
+                    },
+                    layers: [
+                      {
+                        id: "stamen",
+                        type: "raster",
+                        source: "stamen",
+                        minzoom: 0,
+                        maxzoom: 22
+                      }
+                    ]
+                  }
+                }}
               >
-                <path
-                  d="M 260 20 Q 270 40 280 60 Q 290 80 285 100 Q 280 120 275 140 Q 270 160 265 180 Q 260 200 255 220 Q 250 240 260 260 Q 265 270 260 280"
-                  stroke="rgba(196,163,90,0.18)"
-                  strokeWidth="1.7"
-                  strokeDasharray="4 4"
-                />
-                <path
-                  d="M 272 68 Q 220 88 190 130 Q 168 164 168 206"
-                  stroke="rgba(255,255,255,0.15)"
-                  strokeWidth="1"
-                  strokeDasharray="3 6"
-                />
-                <path
-                  d="M 286 74 Q 318 88 332 101"
-                  stroke="rgba(255,255,255,0.12)"
-                  strokeWidth="1"
-                  strokeDasharray="3 6"
-                />
-              </svg>
+                {REGIONS.map((region) => (
+                  <MapMarker key={region.name} longitude={region.coords.lng} latitude={region.coords.lat}>
+                    <MarkerContent>
+                      <div className="relative">
+                        <span className="absolute -inset-3 rounded-full border border-gold-400/20 animate-ping opacity-20" />
+                        <span className="relative block w-3 h-3 rounded-full bg-gold-400/60 border border-gold-400/40" />
+                      </div>
+                      <MarkerLabel position="bottom">
+                        <span className="bg-neutral-900/90 border border-white/8 px-2 py-1 text-white/60">
+                          {region.name}
+                        </span>
+                      </MarkerLabel>
+                    </MarkerContent>
+                  </MapMarker>
+                ))}
+              </Map>
 
-              <div className="absolute left-5 top-5 z-10 max-w-[15rem] border border-white/8 bg-black/35 px-4 py-4 backdrop-blur-sm">
+              <div className="absolute left-5 top-5 z-10 max-w-[15rem] border border-white/8 bg-black/35 px-4 py-4 backdrop-blur-sm pointer-events-none">
                 <p className="text-[10px] uppercase tracking-[0.34em] text-gold-400/75">Coverage Network</p>
                 <p className="mt-3 text-[13px] leading-[1.7] text-white/40">
                   Regional staffing lanes mapped for fast deployment, recurring service, and overflow support.
                 </p>
               </div>
 
-              {REGIONS.map((region, i) => (
-                <motion.div
-                  key={region.name}
-                  initial={{ scale: 0, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.4 + i * 0.15, duration: 0.5, type: "spring" }}
-                  className="absolute group"
-                  style={{ left: region.coords.cx, top: region.coords.cy }}
-                >
-                  <span className="absolute -inset-3 rounded-full border border-gold-400/20 animate-ping opacity-20" />
-                  <span className="relative block w-3 h-3 rounded-full bg-gold-400/60 border border-gold-400/40" />
-                  <div className="absolute left-6 top-1/2 z-10 w-56 -translate-y-1/2 border border-white/8 bg-neutral-900/90 px-4 py-4 opacity-0 shadow-[0_16px_40px_rgba(0,0,0,0.28)] transition-opacity duration-300 pointer-events-none group-hover:opacity-100">
-                    <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.2em] text-gold-400/60">
-                      {region.name}
-                    </p>
-                    <p className="text-[11px] text-white/35 font-light">
-                      {region.detail}
-                    </p>
-                    <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-white/20">{region.market}</p>
-                    <p className="mt-2 text-[11px] leading-[1.7] text-white/30">{region.venues}</p>
-                    <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-gold-400/55">{region.response}</p>
-                  </div>
-                </motion.div>
-              ))}
-
-              <div className="absolute bottom-5 left-5 right-5 grid gap-3 sm:grid-cols-3">
+              <div className="absolute bottom-5 left-5 right-5 grid gap-3 sm:grid-cols-3 pointer-events-none">
                 {COVERAGE_METRICS.map((metric, i) => {
                   const Icon = metric.icon;
 
@@ -201,7 +178,7 @@ export default function ServiceAreaMap() {
                 })}
               </div>
 
-              <span className="absolute bottom-4 right-5 text-[9px] uppercase tracking-[0.3em] text-white/12">
+              <span className="absolute bottom-4 right-5 text-[9px] uppercase tracking-[0.3em] text-white/12 pointer-events-none">
                 East Coast USA
               </span>
             </div>

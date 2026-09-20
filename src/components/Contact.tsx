@@ -72,8 +72,8 @@ export default function Contact() {
     "premium-input w-full border-b border-white/8 bg-transparent px-0 py-4 text-[14px] text-white placeholder:text-white/20 focus:border-gold-400/60 focus:outline-none transition-colors duration-500 font-light";
 
   return (
-    <section id="contact" className="section-chapter relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section id="contact" className="section-chapter relative overflow-hidden">
+      <div className="shell">
         {/* Rule */}
         <div className="editorial-rule mb-24" />
 
@@ -88,7 +88,7 @@ export default function Contact() {
         </motion.p>
 
         <TextReveal delay={0.1}>
-          <h2 className="max-w-lg font-serif text-[clamp(2.5rem,5vw,4.5rem)] font-light leading-none uppercase tracking-tight mb-20">
+          <h2 className="text-display-2 max-w-lg font-serif font-light leading-none uppercase tracking-tight mb-20">
             <RevealLine>Get in</RevealLine>
             <RevealLine isGold className="mt-1">
               Touch

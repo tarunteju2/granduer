@@ -123,6 +123,7 @@ export interface UIState {
   activeSection: string | null;
   showBackToTop: boolean;
   exitIntentShown: boolean;
+  isDarkMode: boolean;
 }
 
 // ============================================
@@ -157,6 +158,7 @@ export interface AppState {
   setActiveSection: (section: string | null) => void;
   setShowBackToTop: (show: boolean) => void;
   setExitIntentShown: (shown: boolean) => void;
+  toggleDarkMode: () => void;
 
   // Chat Actions
   toggleChat: () => void;

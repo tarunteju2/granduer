@@ -1,10 +1,10 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ShieldCheck, FileCheck, Award, UserCheck, MapPin } from "lucide-react";
 
 const PEDIGREE_PILLARS = [
   {
     icon: Award,
-    title: "Est. 1985",
+    title: "Est. 1994",
     description: "Four Decades of Distinction",
   },
   {
@@ -30,19 +30,20 @@ const PEDIGREE_PILLARS = [
 ];
 
 export default function TrustBadges() {
+  const reduced = useReducedMotion();
   return (
-    <section className="relative border-y border-white/[0.09] bg-[#090a0d] py-14">
-      <div className="mx-auto max-w-300 px-8">
+    <section className="relative border-y border-[rgba(245,241,233,0.12)] bg-[#151b1d] py-14">
+      <div className="shell">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-10">
           {PEDIGREE_PILLARS.map((pillar, i) => {
             const Icon = pillar.icon;
             return (
               <motion.div
                 key={pillar.title}
-                initial={{ opacity: 0, y: 12 }}
+                initial={reduced ? { opacity: 1 } : { opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.6 }}
+                transition={{ delay: reduced ? 0 : i * 0.08, duration: reduced ? 0 : 0.6 }}
                 className="group flex flex-col items-start border-l border-white/[0.1] pl-5"
               >
                 <div className="flex items-center gap-3 text-gold-400/80 mb-2.5">

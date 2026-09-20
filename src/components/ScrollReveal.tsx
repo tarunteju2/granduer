@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState, useCallback, type CSSProperties, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { motion, useInView, useReducedMotion, useScroll, useTransform, type Variants } from "framer-motion";
+import { EASE_OUT, REVEAL_VIEWPORT } from "@/lib/motion";
+
 
 interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
   delay?: number;
-  threshold?: number;
-  rootMargin?: string;
   as?: "div" | "article" | "section" | "li" | "span" | "p" | "h2" | "h3" | "h4";
-  animation?: "fade" | "slide-up" | "slide-down" | "slide-left" | "slide-right" | "scale" | "blur";
+  animation?: "fade" | "slide-up" | "slide-down" | "slide-left" | "slide-right" | "scale";
   distance?: number;
+  duration?: number;
 }
 
 interface ParallaxLayerProps {
@@ -27,102 +29,144 @@ interface StaggerRevealProps {
 }
 
 /**
- * Enhanced scroll reveal with multiple animation types.
- * Respects reduced-motion preferences.
+ * Enhanced scroll reveal with multiple animation types using framer-motion.
+ * Respects reduced-motion preferences automatically.
  */
 export default function ScrollReveal({
   children,
   className = "",
   delay = 0,
-  threshold = 0.12,
-  rootMargin = "0px 0px -8% 0px",
   as: Component = "div",
   animation = "slide-up",
   distance = 40,
 }: ScrollRevealProps) {
-  const ref = useRef<HTMLElement>(null);
-  const [revealed, setRevealed] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
+  const isInView = useInView(ref, {
+    once: REVEAL_VIEWPORT.once,
+    margin: REVEAL_VIEWPORT.margin,
+    amount: 0.12,
+  });
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setRevealed(true);
-      return;
+  // Callers pass delay in milliseconds; framer-motion expects seconds.
+  const transition = {
+    delay: reduced ? 0 : delay / 1000,
+    duration: 0.7,
+    ease: EASE_OUT,
+  };
+
+  // Under prefers-reduced-motion every variant collapses to opacity-only.
+  const getVariants = (): Variants => {
+    if (reduced) {
+      return {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition },
+      };
     }
-
-    if (!("IntersectionObserver" in window)) {
-      setRevealed(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        setRevealed(true);
-        observer.disconnect();
-      },
-      { threshold, rootMargin }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [rootMargin, threshold]);
-
-  const getAnimationStyles = (): CSSProperties => {
-    const base: CSSProperties = {
-      transitionDelay: `${delay}ms`,
-    };
-
-    if (revealed) {
-      return base;
-    }
-
     switch (animation) {
       case "fade":
-        return { ...base, opacity: 0 };
+        return {
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition },
+        };
       case "slide-up":
-        return { ...base, opacity: 0, transform: `translateY(${distance}px)` };
+        return {
+          hidden: { opacity: 0, y: distance },
+          visible: { y: 0, opacity: 1, transition },
+        };
       case "slide-down":
-        return { ...base, opacity: 0, transform: `translateY(-${distance}px)` };
+        return {
+          hidden: { opacity: 0, y: -distance },
+          visible: { y: 0, opacity: 1, transition },
+        };
       case "slide-left":
-        return { ...base, opacity: 0, transform: `translateX(${distance}px)` };
+        return {
+          hidden: { opacity: 0, x: distance },
+          visible: { x: 0, opacity: 1, transition },
+        };
       case "slide-right":
-        return { ...base, opacity: 0, transform: `translateX(-${distance}px)` };
+        return {
+          hidden: { opacity: 0, x: -distance },
+          visible: { x: 0, opacity: 1, transition },
+        };
       case "scale":
-        return { ...base, opacity: 0, transform: "scale(0.92)" };
-      case "blur":
-        return { ...base, opacity: 0, filter: "blur(12px)" };
+        return {
+          hidden: { opacity: 0, scale: 0.92 },
+          visible: { scale: 1, opacity: 1, transition },
+        };
       default:
-        return { ...base, opacity: 0, transform: `translateY(${distance}px)` };
+        return {
+          hidden: { opacity: 0, y: distance },
+          visible: { y: 0, opacity: 1, transition },
+        };
     }
   };
 
-  const revealedStyles = revealed ? { opacity: 1, transform: "translate(0) scale(1)", filter: "blur(0px)" } : {};
+  const variants = getVariants();
+
+  if (Component === "div") {
+    return (
+      <motion.div
+        ref={ref}
+        className={`scroll-reveal ${className}`}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        variants={variants}
+        data-revealed={isInView}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
+  if (Component === "section") {
+    return (
+      <motion.section
+        ref={ref as React.RefObject<HTMLElement>}
+        className={`scroll-reveal ${className}`}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        variants={variants}
+        data-revealed={isInView}
+      >
+        {children}
+      </motion.section>
+    );
+  }
+
+  if (Component === "article") {
+    return (
+      <motion.article
+        ref={ref as React.RefObject<HTMLElement>}
+        className={`scroll-reveal ${className}`}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        variants={variants}
+        data-revealed={isInView}
+      >
+        {children}
+      </motion.article>
+    );
+  }
 
   return (
-    <Component
-      ref={ref as never}
+    <motion.div
+      ref={ref}
       className={`scroll-reveal ${className}`}
-      style={{
-        ...getAnimationStyles(),
-        ...revealedStyles,
-        transition: revealed
-          ? `opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms, filter 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`
-          : undefined,
-        willChange: revealed ? "auto" : "transform, opacity, filter",
-      }}
-      data-revealed={revealed}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variants}
+      data-revealed={isInView}
     >
       {children}
-    </Component>
+    </motion.div>
   );
 }
 
 /**
- * Multi-layer parallax effect component.
- * Uses framer-motion for smooth performance.
+ * Multi-layer parallax effect component using framer-motion.
+ * Uses useScroll for smooth performance.
  */
 export function ParallaxLayer({
   children,
@@ -131,208 +175,112 @@ export function ParallaxLayer({
   direction = "up",
   containerRef,
 }: ParallaxLayerProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
 
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    const element = ref.current;
-    if (!element) return;
-
-    const target = containerRef?.current || element.parentElement;
-    if (!target) return;
-
-    let rafId: number | null = null;
-    let lastScrollY = window.scrollY;
-
-    const handleScroll = () => {
-      if (rafId !== null) return;
-
-      rafId = requestAnimationFrame(() => {
-        const rect = target.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const elementCenter = rect.top + rect.height / 2;
-        const viewportCenter = viewportHeight / 2;
-        const distanceFromCenter = elementCenter - viewportCenter;
-        const normalizedPosition = distanceFromCenter / viewportHeight;
-
-        let transformValue = 0;
-        switch (direction) {
-          case "up":
-            transformValue = normalizedPosition * speed * 100;
-            break;
-          case "down":
-            transformValue = -normalizedPosition * speed * 100;
-            break;
-          case "left":
-            transformValue = normalizedPosition * speed * 100;
-            break;
-          case "right":
-            transformValue = -normalizedPosition * speed * 100;
-            break;
-        }
-
-        switch (direction) {
-          case "up":
-          case "down":
-            element.style.transform = `translateY(${transformValue}px)`;
-            break;
-          case "left":
-          case "right":
-            element.style.transform = `translateX(${transformValue}px)`;
-            break;
-        }
-
-        rafId = null;
-        lastScrollY = window.scrollY;
-      });
+  const getTransform = () => {
+    const transformMap = {
+      up: [speed * 50, -speed * 50],
+      down: [-speed * 50, speed * 50],
+      left: [speed * 50, -speed * 50],
+      right: [-speed * 50, speed * 50],
     };
+    return transformMap[direction];
+  };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial position
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
-  }, [speed, direction, containerRef, prefersReducedMotion]);
+  const [start, end] = getTransform();
+  const yValue = useTransform(scrollYProgress, [0, 1], [start, end]);
+  const xValue = useTransform(scrollYProgress, [0, 1], [start, end]);
 
   return (
-    <div ref={ref} className={className}>
+    <motion.div
+      style={{
+        y: direction === "up" || direction === "down" ? yValue : undefined,
+        x: direction === "left" || direction === "right" ? xValue : undefined,
+      }}
+      className={className}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 /**
- * Staggered reveal for lists of items.
+ * Staggered reveal for lists of items using framer-motion.
  */
 export function StaggerReveal({
   children,
   className = "",
-  staggerDelay = 80,
+  staggerDelay = 0.08,
   animation = "slide-up",
 }: StaggerRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    const container = ref.current;
-    if (!container) return;
-
-    const items = container.querySelectorAll<HTMLElement>("[data-stagger-item]");
-    if (items.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            items.forEach((item, index) => {
-              setTimeout(() => {
-                item.classList.add("stagger-revealed");
-              }, prefersReducedMotion ? 0 : index * staggerDelay);
-            });
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(container);
-
-    return () => observer.disconnect();
-  }, [staggerDelay, prefersReducedMotion]);
+  const reduced = useReducedMotion();
+  const isInView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
 
   const childrenArray = Array.isArray(children) ? children : [children];
 
+  const containerVariants: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: reduced ? 0 : staggerDelay,
+        delayChildren: 0,
+      },
+    },
+  };
+
+  const getItemVariants = (): Variants => {
+    if (reduced) {
+      return {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.7, ease: EASE_OUT } },
+      };
+    }
+    switch (animation) {
+      case "slide-up":
+        return {
+          hidden: { opacity: 0, y: 24 },
+          visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
+        };
+      case "scale":
+        return {
+          hidden: { opacity: 0, scale: 0.92 },
+          visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE_OUT } },
+        };
+      case "fade":
+        return {
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { duration: 0.7, ease: EASE_OUT } },
+        };
+      default:
+        return {
+          hidden: { opacity: 0, y: 24 },
+          visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
+        };
+    }
+  };
+
   return (
-    <div ref={ref} className={`stagger-container ${className}`}>
+    <motion.div
+      ref={ref}
+      className={`stagger-container ${className}`}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={containerVariants}
+    >
       {childrenArray.map((child, index) => (
-        <div
+        <motion.div
           key={index}
-          data-stagger-item
+          variants={getItemVariants()}
           className="stagger-item"
-          style={{
-            opacity: prefersReducedMotion ? 1 : 0,
-            transform: prefersReducedMotion
-              ? "none"
-              : animation === "slide-up"
-              ? "translateY(30px)"
-              : animation === "scale"
-              ? "scale(0.92)"
-              : "translateY(30px)",
-            transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)`,
-          }}
         >
           {child}
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
-/**
- * Progress-linked reveal - elements reveal based on scroll progress.
- */
-export function ProgressReveal({
-  children,
-  className = "",
-  start = 0,
-  end = 1,
-}: {
-  children: ReactNode;
-  className?: string;
-  start?: number;
-  end?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    const element = ref.current;
-    if (!element) return;
-
-    let rafId: number | null = null;
-
-    const updateProgress = () => {
-      const rect = element.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const elementTop = rect.top;
-      const elementVisible = viewportHeight - elementTop;
-      const progress = Math.min(1, Math.max(0, elementVisible / (viewportHeight + rect.height)));
-
-      const mappedProgress = (progress - start) / (end - start);
-      const clampedProgress = Math.min(1, Math.max(0, mappedProgress));
-
-      element.style.setProperty("--reveal-progress", String(clampedProgress));
-      element.style.opacity = String(clampedProgress);
-      element.style.transform = `translateY(${(1 - clampedProgress) * 30}px)`;
-    };
-
-    const handleScroll = () => {
-      if (rafId !== null) return;
-      rafId = requestAnimationFrame(() => {
-        updateProgress();
-        rafId = null;
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    updateProgress();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId !== null) cancelAnimationFrame(rafId);
-    };
-  }, [start, end, prefersReducedMotion]);
-
-  return (
-    <div ref={ref} className={className} style={{ willChange: "transform, opacity" }}>
-      {children}
-    </div>
-  );
-}

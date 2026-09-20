@@ -15,4 +15,20 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8888",
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        "liquid-glass": resolve(__dirname, "liquid-glass.html"),
+      },
+    },
+  },
 });

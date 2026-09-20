@@ -3,8 +3,8 @@ import { RESOURCES } from "@/data/content";
 
 export default function Resources() {
   return (
-    <section id="resources" className="section-shell relative py-36 overflow-hidden">
-      <div className="mx-auto max-w-300 px-8">
+    <section id="resources" className="section-shell relative overflow-hidden">
+      <div className="shell">
         <div className="editorial-rule mb-24" />
 
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -24,7 +24,7 @@ export default function Resources() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1, duration: 0.8 }}
-              className="max-w-2xl font-serif text-[clamp(2.4rem,5vw,4.2rem)] font-light leading-none uppercase tracking-tight"
+              className="text-display-2 max-w-2xl font-serif font-light leading-none uppercase tracking-tight"
             >
               Planning
               <br />
