@@ -15,10 +15,10 @@ export const COMPANY = {
   name: "Grandeur Hospitality Staffing",
   shortName: "Grandeur",
   tagline:
-    "Premium Hospitality Staffing Solutions Since 1985",
+    "Premium Hospitality Staffing Solutions Since 1994",
   description:
     "Grandeur New York solves staffing challenges for hospitality professionals. We provide well-trained, highly skilled employees at an affordable price, reducing costs and increasing client productivity.",
-  founded: 1985,
+  founded: 1994,
   growthRate: "40%+",
   regions: ["NYC", "Long Island", "New Jersey", "South Florida"],
 };
@@ -38,9 +38,9 @@ export const PRICING = {
 
 export const ABOUT = {
   paragraphs: [
-    "Since 1985, Grandeur New York has helped caterers, country clubs, yacht clubs, hotels, Fortune 500 companies, and restaurants across the tri-state area. Our staffing service reduces administrative work, controls costs, and lets operators focus on growth.",
+    "Since 1994, Grandeur New York has helped caterers, country clubs, yacht clubs, hotels, Fortune 500 companies, and restaurants across the tri-state area. Our staffing service reduces administrative work, controls costs, and lets operators focus on growth.",
     "The individuals who comprise the working core of Grandeur New York share years of academic achievements and cumulatively possess decades of insightful knowledge gained through on-the-job experience. Our experience and credentials mean you're getting stability and security along with proven service.",
-    "With an average annual growth rate of over 40%, Grandeur New York has been the fastest growing professional staffing company in the Hospitality industry since its founding in 1985. We have and will continue to establish our company as the respected leader in professional staffing for the Hospitality industry.",
+    "With an average annual growth rate of over 40%, Grandeur New York has been the fastest growing professional staffing company in the Hospitality industry since its founding in 1994. We have and will continue to establish our company as the respected leader in professional staffing for the Hospitality industry.",
   ],
 };
 
